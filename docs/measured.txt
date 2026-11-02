@@ -1,0 +1,26 @@
+largest deviation 0.00000 dB
+out 0: -12.000 dB, out 10: 12.000 dB, out 7.5: 6.000 dB
+largest difference 0.0000 dB
+low boost at 5 Hz 13.51, low atten at 5 Hz -17.46, high boost at 10 kHz 18.00, high atten (5 kHz corner) at 20 kHz -15.78
+bump 2.88 dB at 69 Hz; dip -2.51 dB at 236 Hz (boost alone at that frequency: 0.00 dB)
+at 60 Hz: boost alone 8.83 dB, with atten 2.82 dB; at 20 Hz with both 1.96 dB
+largest step 0.0112, steady state 0.0112
+reported 40 samples; measured 40, 40, 40
+that is 0.83 ms at 48 kHz and 0.42 ms at 96 kHz
+largest passband deviation 0.0024 dB
+worst alias -53.6 dB with the oversampler; the same shaper without oversampling: -12.1 dB
+tube  0.0 at -12 dBFS, 1 kHz-ish: H2 -240.0 dB, H3 -192.3 dB (relative to the fundamental), THD+ 0.00%, level -0.00 dB
+tube  2.0 at -12 dBFS, 1 kHz-ish: H2  -48.8 dB, H3  -34.2 dB (relative to the fundamental), THD+ 1.99%, level -0.00 dB
+tube  5.0 at -12 dBFS, 1 kHz-ish: H2  -37.6 dB, H3  -25.4 dB (relative to the fundamental), THD+ 5.51%, level -0.02 dB
+tube 10.0 at -12 dBFS, 1 kHz-ish: H2  -30.3 dB, H3  -18.4 dB (relative to the fundamental), THD+ 12.37%, level -0.05 dB
+pink noise   tube 10: output level +0.02 dB against the input
+bass heavy   tube 10: output level -0.00 dB against the input
+drums        tube 10: output level +0.20 dB against the input
+lead chord   tube 10: output level -0.01 dB against the input
+largest level difference 0.20 dB
+low boost 0 to 10 (100 Hz tone)    first change after 41 samples (0.85 ms; latency 40), within 1 dB of the final level after about 44.8 ms
+high boost 0 to 10 (10 kHz tone)   first change after 41 samples (0.85 ms; latency 40), within 1 dB of the final level after about 16.2 ms
+output 5 to 10 (tube 5)            first change after 0 samples (0.00 ms; latency 40), within 1 dB of the final level after about 9.9 ms
+DC 0.5 in, 2.3658 out (expected 2.3658)
+largest output 5.12
+largest output 3.95

@@ -1,0 +1,707 @@
+{
+ "cheekL": [
+  0,
+  0,
+  52,
+  640
+ ],
+ "cheekR": [
+  1148,
+  0,
+  52,
+  640
+ ],
+ "main": [
+  52,
+  0,
+  1096,
+  640
+ ],
+ "hdr": [
+  52,
+  0,
+  1096,
+  46
+ ],
+ "body": [
+  52,
+  46,
+  1096,
+  568
+ ],
+ "disp": [
+  52,
+  46,
+  1004,
+  330
+ ],
+ "knobs": [
+  52,
+  376,
+  1004,
+  186
+ ],
+ "rig": [
+  52,
+  562,
+  1004,
+  52
+ ],
+ "meters": [
+  1056,
+  46,
+  92,
+  568
+ ],
+ "foot": [
+  52,
+  614,
+  1096,
+  26
+ ],
+ "logo": [
+  64,
+  5.5,
+  34,
+  34
+ ],
+ "name": [
+  106,
+  8.5,
+  84.19,
+  28
+ ],
+ "s87": [
+  198.19,
+  15.5,
+  59.78,
+  14
+ ],
+ "brand": [
+  64,
+  5.5,
+  193.97,
+  34
+ ],
+ "pPrev": [
+  379.02,
+  10.09,
+  35.34,
+  24.8
+ ],
+ "pName": [
+  418.36,
+  8.91,
+  190,
+  27.19
+ ],
+ "pNext": [
+  612.36,
+  10.09,
+  35.34,
+  24.8
+ ],
+ "pSave": [
+  651.7,
+  10.09,
+  47.08,
+  24.8
+ ],
+ "bBypass": [
+  819.83,
+  10.09,
+  59.36,
+  24.8
+ ],
+ "bGuide": [
+  889.19,
+  10.09,
+  51.8,
+  24.8
+ ],
+ "bSettings": [
+  950.98,
+  10.09,
+  65.81,
+  24.8
+ ],
+ "bAbout": [
+  1026.8,
+  10.09,
+  109.2,
+  24.8
+ ],
+ "cvResp": [
+  62,
+  72,
+  630,
+  290
+ ],
+ "cvSpec": [
+  700,
+  72,
+  346,
+  290
+ ],
+ "cvMet": [
+  1060.5,
+  72,
+  84,
+  300
+ ],
+ "pkIn": [
+  1061.5,
+  374,
+  40,
+  14
+ ],
+ "pkOut": [
+  1103.5,
+  374,
+  40,
+  14
+ ],
+ "winsz": [
+  1066.73,
+  620.5,
+  69.27,
+  14
+ ],
+ "tips": {
+  "cheekL": "Double-click the wood to reset the window to 100%. Try: resize the window, then double-click here.",
+  "cheekR": "Double-click the wood to reset the window to 100%. Try: resize the window, then double-click here.",
+  "brand": "Pawltec by Studio 87. A free, open source tube-style program equalizer. Try: open About & Support for the project links.",
+  "pPrev": "Previous preset ([ key). Steps back through the list. Try: tap it to audition factory sounds quickly.",
+  "pName": "Open the preset browser. Double-click to rename your own preset. Try: click it, search for \"trick\", and load Low Trick 60.",
+  "pNext": "Next preset (] key). Steps forward through the list. Try: tap it to audition factory sounds quickly.",
+  "pSave": "Save these settings as your own preset. Asks before overwriting. Try: tweak a factory sound, then save your own version.",
+  "bBypass": "Bypass: hear the dry signal to compare with the equalized sound (B key). The meters keep moving. Try: switch it during playback and match the loudness by ear.",
+  "bGuide": "Short guide and keyboard shortcuts. Try: read the low trick note first.",
+  "bSettings": "Info bubbles, power saving, colour look. Try: switch between the three looks.",
+  "bAbout": "About Pawltec, support and where your files live. Try: open it to find the project links.",
+  "cvResp": "What the equalizer does to each frequency, in dB. The thick line is the total; the thin lines are the four sections. Drag a round handle up or down to change that section, or sideways to pick another frequency. Hover to read a value. Hover to read frequency, note, EQ gain and spectrum level. Try: drag the low handles to the same spot for the low trick.",
+  "cvSpec": "Live spectrum of the preview sound. Grey line: before the equalizer. Coloured fill: after it. Scale is dB below full level. Hover to read frequency, note, and level. Small labels name the strongest peaks. Try: play pink noise and watch the curve shape it.",
+  "cvMet": "Level of the sound going in and coming out, in dB. Blue is safe, purple is the warning zone, pink is clipping. Click to clear the clip lights. Try: keep the loudest peaks in the purple zone and out of pink."
+ },
+ "footTexts": [
+  {
+   "t": "Studio 87 \u00b7 Pawltec v0.1.2 design mockup",
+   "r": [
+    64,
+    620.5,
+    210.02,
+    14
+   ]
+  },
+  {
+   "t": "1200 \u00d7 640 px",
+   "r": [
+    1066.73,
+    620.5,
+    69.27,
+    14
+   ]
+  }
+ ],
+ "caps": [
+  {
+   "title": "Response curve (dB)",
+   "titleR": [
+    62,
+    55,
+    120.55,
+    14
+   ],
+   "capR": [
+    62,
+    54,
+    630,
+    16
+   ],
+   "leg": [
+    {
+     "t": "total",
+     "r": [
+      334.61,
+      55.5,
+      43.47,
+      13
+     ],
+     "color": "var(--ink)"
+    },
+    {
+     "t": "low boost",
+     "r": [
+      388.08,
+      55.5,
+      67.61,
+      13
+     ],
+     "color": "var(--g)"
+    },
+    {
+     "t": "low atten",
+     "r": [
+      465.69,
+      55.5,
+      67.08,
+      13
+     ],
+     "color": "var(--pink)"
+    },
+    {
+     "t": "high boost",
+     "r": [
+      542.77,
+      55.5,
+      69.88,
+      13
+     ],
+     "color": "var(--y)"
+    },
+    {
+     "t": "high atten",
+     "r": [
+      622.64,
+      55.5,
+      69.36,
+      13
+     ],
+     "color": "var(--b)"
+    }
+   ]
+  },
+  {
+   "title": "Spectrum, in and out (dBFS)",
+   "titleR": [
+    700,
+    55,
+    165.38,
+    14
+   ],
+   "capR": [
+    700,
+    54,
+    346,
+    16
+   ],
+   "leg": [
+    {
+     "t": "in",
+     "r": [
+      977.5,
+      55.5,
+      25.14,
+      13
+     ],
+     "color": ""
+    },
+    {
+     "t": "out",
+     "r": [
+      1012.64,
+      55.5,
+      33.36,
+      13
+     ],
+     "color": "var(--accent)"
+    }
+   ]
+  }
+ ],
+ "mcaps": [
+  {
+   "t": "In",
+   "r": [
+    1063.5,
+    54,
+    36,
+    14
+   ]
+  },
+  {
+   "t": "Out",
+   "r": [
+    1105.5,
+    54,
+    36,
+    14
+   ]
+  }
+ ],
+ "groups": [
+  {
+   "title": "Low section",
+   "titleR": [
+    75,
+    377,
+    111.55,
+    16
+   ],
+   "r": [
+    62,
+    384,
+    282,
+    172
+   ],
+   "tip": "Low section: boost and atten share one frequency. Try: use Boost and Atten here together for the low trick.",
+   "cells": [
+    {
+     "lab": "Freq",
+     "labR": [
+      96.45,
+      401,
+      33.08,
+      16
+     ],
+     "knobR": [
+      68,
+      417,
+      90,
+      90
+     ],
+     "valR": [
+      93.19,
+      507,
+      39.61,
+      30
+     ],
+     "tip": "Low frequency: 20, 30, 60 or 100 Hz. Sets where both the low boost and the low atten work. Click a number, drag, or use the wheel. Try: 60 Hz for kick and bass, 30 Hz for sub.",
+     "aria": "Low section Freq"
+    },
+    {
+     "lab": "Boost",
+     "labR": [
+      181.73,
+      401,
+      42.52,
+      16
+     ],
+     "knobR": [
+      158,
+      417,
+      90,
+      90
+     ],
+     "valR": [
+      179.89,
+      507,
+      46.2,
+      30
+     ],
+     "tip": "Low boost: lifts the bass around the chosen low frequency, up to +13.5 dB. 0 does nothing. Try: Boost and Atten together on the same low frequency, the famous low end trick, for a fat bump without mud.",
+     "aria": "Low section Boost"
+    },
+    {
+     "lab": "Atten",
+     "labR": [
+      271.81,
+      401,
+      42.36,
+      16
+     ],
+     "knobR": [
+      248,
+      417,
+      90,
+      90
+     ],
+     "valR": [
+      269.89,
+      507,
+      46.2,
+      30
+     ],
+     "tip": "Low atten: turns the lows down, up to -17.5 dB. Use it with Boost on the same frequency for the classic trick: a fat bump with a clean dip just above it. Try: raise Boost on the same frequency too, the famous low end trick, so the bass gets big and the mud above it gets cleaned.",
+     "aria": "Low section Atten"
+    }
+   ]
+  },
+  {
+   "title": "High boost",
+   "titleR": [
+    369,
+    377,
+    101.33,
+    16
+   ],
+   "r": [
+    356,
+    384,
+    282,
+    172
+   ],
+   "tip": "High boost: a bell you can make narrow or wide. Try: start with 2 to 4 on the boost.",
+   "cells": [
+    {
+     "lab": "Freq",
+     "labR": [
+      390.45,
+      401,
+      33.08,
+      16
+     ],
+     "knobR": [
+      362,
+      417,
+      90,
+      90
+     ],
+     "valR": [
+      387.19,
+      507,
+      39.61,
+      30
+     ],
+     "tip": "High boost frequency: 3, 4, 5, 8, 10, 12 or 16 kHz. This is the centre of the high boost bell. Try: 3 or 4 kHz for punch, 10 to 16 kHz for air.",
+     "aria": "High boost Freq"
+    },
+    {
+     "lab": "Boost",
+     "labR": [
+      475.73,
+      401,
+      42.52,
+      16
+     ],
+     "knobR": [
+      452,
+      417,
+      90,
+      90
+     ],
+     "valR": [
+      473.89,
+      507,
+      46.2,
+      30
+     ],
+     "tip": "High boost: lifts the highs around the chosen frequency, up to +18 dB. Use Bandwidth to make it narrow or wide. Try: small amounts, 2 to 4, for air on vocals and cymbals.",
+     "aria": "High boost Boost"
+    },
+    {
+     "lab": "Width",
+     "labR": [
+      565.59,
+      401,
+      42.81,
+      16
+     ],
+     "knobR": [
+      542,
+      417,
+      90,
+      90
+     ],
+     "valR": [
+      567.19,
+      507,
+      39.61,
+      30
+     ],
+     "tip": "Bandwidth of the high boost. 0 is narrow and pointed, 10 is wide and gentle. Wide settings sound smooth and natural. Try: wide (7 to 10) for a smooth lift, narrow (0 to 3) to pick out one spot.",
+     "aria": "High boost Width"
+    }
+   ]
+  },
+  {
+   "title": "High atten",
+   "titleR": [
+    663,
+    377,
+    101.19,
+    16
+   ],
+   "r": [
+    650,
+    384,
+    192,
+    172
+   ],
+   "tip": "High atten: turns the highs down above a corner frequency. Try: start at 5 kHz or 10 kHz.",
+   "cells": [
+    {
+     "lab": "Freq",
+     "labR": [
+      684.45,
+      401,
+      33.08,
+      16
+     ],
+     "knobR": [
+      656,
+      417,
+      90,
+      90
+     ],
+     "valR": [
+      681.19,
+      507,
+      39.61,
+      30
+     ],
+     "tip": "High atten frequency: 5, 10 or 20 kHz. Above this point the highs are turned down smoothly. Try: 5 kHz to calm harshness, 20 kHz for a gentle top trim.",
+     "aria": "High atten Freq"
+    },
+    {
+     "lab": "Atten",
+     "labR": [
+      769.81,
+      401,
+      42.36,
+      16
+     ],
+     "knobR": [
+      746,
+      417,
+      90,
+      90
+     ],
+     "valR": [
+      771.19,
+      507,
+      39.61,
+      30
+     ],
+     "tip": "High atten: turns the highs down above the chosen frequency, up to -16 dB. Good for taming harshness and hiss. Try: 1 to 3 to soften a bright source or hide hiss.",
+     "aria": "High atten Atten"
+    }
+   ]
+  },
+  {
+   "title": "Tube stage",
+   "titleR": [
+    867,
+    377,
+    102.45,
+    16
+   ],
+   "r": [
+    854,
+    384,
+    192,
+    172
+   ],
+   "tip": "Tube stage and output level. Try: 2 to 3 on Tube, then adjust Output.",
+   "cells": [
+    {
+     "lab": "Tube",
+     "labR": [
+      888.06,
+      401,
+      33.86,
+      16
+     ],
+     "knobR": [
+      860,
+      417,
+      90,
+      90
+     ],
+     "valR": [
+      888.5,
+      507,
+      33,
+      30
+     ],
+     "tip": "Tube stage warmth: adds soft, tube-like colour and gentle peak rounding. 0 is clean and bit-exact. Preview only uses a simple model. Try: 2 to 4 to add warmth to a clean sound.",
+     "aria": "Tube stage Tube"
+    },
+    {
+     "lab": "Output",
+     "labR": [
+      969.17,
+      401,
+      51.66,
+      16
+     ],
+     "knobR": [
+      950,
+      417,
+      90,
+      90
+     ],
+     "valR": [
+      971.89,
+      507,
+      46.2,
+      30
+     ],
+     "tip": "Output level after the equalizer. 5 is 0 dB, range -12 to +12 dB. Boosting makes things sound better just because they are louder, so match levels when you compare. Try: match the level with Bypass on and off before judging.",
+     "aria": "Tube stage Output"
+    }
+   ]
+  }
+ ],
+ "knobsR": [
+  52,
+  376,
+  1004,
+  186
+ ],
+ "styles": {
+  "name": {
+   "fs": "28px",
+   "fw": "800",
+   "ls": "0.5px",
+   "ff": "\"Barlow Condensed\", \"Arial Narrow\", Arial, sans-serif",
+   "color": "rgb(255, 255, 255)"
+  },
+  "s87": {
+   "fs": "12px",
+   "fw": "400",
+   "ls": "2px",
+   "ff": "\"Barlow Condensed\", \"Arial Narrow\", Arial, sans-serif",
+   "color": "rgb(169, 173, 184)"
+  },
+  "lab": {
+   "fs": "14px",
+   "fw": "700",
+   "ls": "2px",
+   "ff": "\"Barlow Condensed\", \"Arial Narrow\", Arial, sans-serif",
+   "color": "rgb(232, 233, 238)"
+  },
+  "gt": {
+   "fs": "13px",
+   "fw": "700",
+   "ls": "2px",
+   "ff": "\"Barlow Condensed\", \"Arial Narrow\", Arial, sans-serif",
+   "color": "rgb(232, 233, 238)"
+  },
+  "cap": {
+   "fs": "12px",
+   "fw": "400",
+   "ls": "1.5px",
+   "ff": "\"Barlow Condensed\", \"Arial Narrow\", Arial, sans-serif",
+   "color": "rgb(232, 233, 238)"
+  },
+  "foot": {
+   "fs": "12px",
+   "fw": "400",
+   "ls": "1px",
+   "ff": "\"Barlow Condensed\", \"Arial Narrow\", Arial, sans-serif",
+   "color": "rgb(169, 173, 184)"
+  },
+  "kval": {
+   "fs": "11px",
+   "fw": "400",
+   "ls": "normal",
+   "ff": "\"JetBrains Mono\", SFMono-Regular, Consolas, monospace",
+   "color": "rgb(169, 173, 184)"
+  },
+  "mcap": {
+   "fs": "12px",
+   "fw": "400",
+   "ls": "1.5px",
+   "ff": "\"Barlow Condensed\", \"Arial Narrow\", Arial, sans-serif",
+   "color": "rgb(232, 233, 238)"
+  },
+  "pk": {
+   "fs": "11px",
+   "fw": "400",
+   "ls": "normal",
+   "ff": "\"JetBrains Mono\", SFMono-Regular, Consolas, monospace",
+   "color": "rgb(164, 61, 255)"
+  }
+ }
+}

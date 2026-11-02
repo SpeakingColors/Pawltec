@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<PAWLTEC look="B" preset="Vocal Air" stateVersion="1">
+  <PARAM id="attF" value="1.0"/>
+  <PARAM id="bw" value="8.0"/>
+  <PARAM id="bypass" value="1.0"/>
+  <PARAM id="hiA" value="2.5"/>
+  <PARAM id="hiB" value="3.5"/>
+  <PARAM id="hiF" value="6.0"/>
+  <PARAM id="lowA" value="4.0"/>
+  <PARAM id="lowB" value="6.5"/>
+  <PARAM id="lowF" value="3.0"/>
+  <PARAM id="out" value="6.0"/>
+  <PARAM id="tube" value="4.0"/>
+</PAWLTEC>
