@@ -40,7 +40,7 @@ pre{font-family:"JetBrains Mono",Consolas,monospace;font-size:11px;background:va
 <li>For the classic low end trick, set <b>Boost</b> and <b>Atten</b> on the same low frequency (try the preset <b>Low Trick 60</b>): a fat bump at the bottom and a clean dip just above it.</li>
 <li>Compare with <b>Bypass</b> (B). Boosting makes things sound better only because they are louder, so match the level with <b>Output</b> before you judge.</li>
 </ol>
-<div class="warnbox"><b>Level:</b> Pawltec has no output limiter. Big boosts can push the signal over 0 dBFS; the In and Out meters show it (pink above 0 dB) and the clip lights stay on until you click the meter. Turn <b>Output</b> down or lower the boost.</div>
+<div class="warnbox"><b>Level:</b> Pawltec has a safety limiter at the very end (0 dBFS, 32 samples of lookahead). Below 0 dBFS it does nothing and the signal passes untouched; above it, it turns the level down smoothly so the output never goes over 0 dBFS. It is a host parameter called <b>Safety Limiter</b> (on by default; automate or switch it off from your host). The In and Out meters still show what comes in and goes out. If you hear the limiter working all the time, turn <b>Output</b> down or lower the boost.</div>
 
 <h2>Signal flow</h2>
 <p>Input, then the equalizer network (low boost, low atten, high boost, high atten), then the tube stage, then Output. With Tube at 0 the tube stage is completely out of the signal path and the sound is only delayed by the plugin's fixed latency.</p>
@@ -108,7 +108,7 @@ pre{font-family:"JetBrains Mono",Consolas,monospace;font-size:11px;background:va
 <h3>What was measured (automatic tests in the source, <code>tests/test_core.cpp</code>)</h3>
 <p>These are numbers from the core tests on the build machine; they describe the code, not the sound on your system.</p>
 <pre>@MEASURED@</pre>
-<div class="note"><b>Honest limits.</b> Worst-case aliasing in the tube stage is about -53.6 dB (tube 10, loud sines near 14 to 15 kHz); the same shaper without oversampling gives -12 dB. Not verified: the shapes and frequencies against any real hardware; the installers on real Windows and macOS machines; the Flatpak extension in a real Flatpak DAW; loading the plugin in real hosts beyond the automatic validator; the sound by ear on real material.</div>
+<div class="note"><b>Honest limits.</b> Worst-case aliasing in the tube stage is about -72.5 dB (tube 10, loud sines up to 15 kHz, 4x oversampling plus first order antiderivative anti-aliasing); the same shaper without oversampling gives -12 dB. Not verified: the shapes and frequencies against any real hardware; the installers on real Windows and macOS machines; the Flatpak extension in a real Flatpak DAW; loading the plugin in real hosts beyond the automatic validator; the sound by ear on real material.</div>
 
 <h2>Licence and thanks</h2>
 <p>AGPL-3.0-or-later. Built with JUCE (AGPLv3). Fonts: Barlow Condensed and JetBrains Mono, SIL Open Font Licence 1.1 (texts in the source folder <code>assets/fonts</code>). Source: <a href="https://github.com/SpeakingColors/pawltec">github.com/SpeakingColors/pawltec</a>. Optional support: <a href="https://ko-fi.com/studio87">ko-fi.com/studio87</a>.</p>

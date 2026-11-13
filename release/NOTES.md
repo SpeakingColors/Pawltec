@@ -1,3 +1,5 @@
+**Test build (pre-release), 0.1.1: adds a 0 dBFS safety limiter (host parameter, on by default, untouched below 0 dBFS) and cuts tube aliasing from -53.6 to -72.5 dB. Latency is now 72 samples.**
+
 **Test build (pre-release).** Pawltec is a free, open source tube-style program equalizer (VST3) by Studio 87: low boost and atten on a shared frequency, high boost with width, high atten, a tube stage and an Output level. It collects nothing and never uses the network.
 
 This zip holds the installers for Windows (.exe) and macOS (.pkg), Linux Flatpak extension and plain .vst3 tarball, the PDF manual, INSTALL.txt, LICENSE and SHA256SUMS. Everything works offline.

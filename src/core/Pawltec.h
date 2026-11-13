@@ -43,11 +43,12 @@ struct Params
     float tube = 0.0f;     // 0..10  0 = clean and bit exact
     float out = 5.0f;      // 0..10  5 = 0 dB
     bool bypass = false;
+    bool limit = true;     // safety limiter at 0 dBFS on the output (transparent below the ceiling)
 
     bool operator== (const Params& o) const
     {
         return lowF == o.lowF && lowB == o.lowB && lowA == o.lowA && hiF == o.hiF && hiB == o.hiB && bw == o.bw
-            && attF == o.attF && hiA == o.hiA && tube == o.tube && out == o.out && bypass == o.bypass;
+            && attF == o.attF && hiA == o.hiA && tube == o.tube && out == o.out && bypass == o.bypass && limit == o.limit;
     }
 };
 
@@ -210,7 +211,9 @@ struct Down2
 } // namespace detail
 
 // Total delay of the 4x oversampler in samples at the host rate (exact, an integer).
-inline constexpr int kLatencySamples = detail::kDelayA + detail::kDelayB / 2;
+inline constexpr int kOsLatency = detail::kDelayA + detail::kDelayB / 2;   // the 4x oversampler alone
+inline constexpr int kLimLook = 32;                                        // limiter lookahead in samples (always applied, so the latency never changes)
+inline constexpr int kLatencySamples = kOsLatency + kLimLook;
 static_assert (detail::kDelayB % 2 == 0, "stage B delay must be even so the total latency is a whole number of samples");
 
 // The tube shaper: unity gain for small signals, soft rounding of peaks and a little asymmetry (even harmonics).
@@ -225,24 +228,67 @@ struct TubeShaper
         norm = g * (1.0 - tb * tb);
     }
     double operator() (double x) const { return (std::tanh (g * x + bias) - tb) / norm; }
+    // Antiderivative of the shaper (for first order antiderivative anti aliasing): ln cosh is written so it never overflows.
+    double F (double x) const
+    {
+        const double u = g * x + bias, a = std::fabs (u);
+        const double lc = a + std::log1p (std::exp (-2.0 * a)) - 0.69314718055994531;
+        return (lc / g - tb * x) / norm;
+    }
 };
 
 // A delay of exactly kLatencySamples samples.
+template <int D>
 struct FixedDelay
 {
-    static constexpr int N = 64;   // power of two above kLatencySamples
+    static constexpr int N = 128;   // power of two above the largest delay
+    static_assert (N > D && (N & (N - 1)) == 0, "delay size");
     std::array<float, N> buf {};
     int pos = 0;
     void reset() { buf.fill (0.0f); pos = 0; }
     float process (float x)
     {
         buf[(size_t) pos] = x;
-        const float y = buf[(size_t) ((unsigned) (pos - kLatencySamples) & (N - 1))];
+        const float y = buf[(size_t) ((unsigned) (pos - D) & (N - 1))];
         pos = (pos + 1) & (N - 1);
         return y;
     }
 };
-static_assert (FixedDelay::N > kLatencySamples && (FixedDelay::N & (FixedDelay::N - 1)) == 0, "delay size");
+
+// Safety limiter with lookahead (always delays by kLimLook samples). Below the ceiling the gain is exactly 1, so the
+// signal passes untouched; above it the gain comes down before the peak reaches the output, then a hard clamp
+// catches the last fraction of a percent.
+struct Limiter
+{
+    static constexpr int N = 64;
+    std::array<std::array<float, N>, 2> dl {};
+    std::array<float, N> pk {};
+    int pos = 0;
+    double gs = 1.0;
+    void reset() { for (auto& d : dl) d.fill (0.0f); pk.fill (0.0f); pos = 0; gs = 1.0; }
+    // in/out: one sample of up to two channels. kAtk, kRel are per-sample one pole coefficients.
+    void process (const float* in, float* out, int nch, bool on, double kAtk, double kRel)
+    {
+        float peakIn = 0.0f;
+        for (int c = 0; c < nch; ++c) { dl[(size_t) c][(size_t) pos] = in[c]; peakIn = std::max (peakIn, std::fabs (in[c])); }
+        pk[(size_t) pos] = peakIn;
+        float m = 0.0f;
+        for (int k = 0; k <= kLimLook; ++k) m = std::max (m, pk[(size_t) ((unsigned) (pos - k) & (N - 1))]);
+        const double target = (on && m > 1.0f) ? 1.0 / (double) m : 1.0;
+        if (target < gs) gs += (target - gs) * kAtk;
+        else gs = std::min (target, gs + (1.0 - gs) * kRel);
+        if (gs > 1.0) gs = 1.0;
+        const unsigned rd = (unsigned) (pos - kLimLook) & (N - 1);
+        for (int c = 0; c < nch; ++c)
+        {
+            float y = dl[(size_t) c][rd];
+            if (gs != 1.0) y = (float) (y * gs);
+            if (on) y = std::max (-1.0f, std::min (1.0f, y));
+            out[c] = y;
+        }
+        pos = (pos + 1) & (N - 1);
+    }
+};
 
 // ---- the engine ---------------------------------------------------------------------------------------
 class Engine
@@ -258,6 +304,8 @@ public:
         kRamp = 1.0 / (0.010 * fs);
         kMs   = 1.0 - std::exp (-1.0 / (0.25 * fs));        // 250 ms power average for the level match
         kGlide = 1.0 - std::exp (-1.0 / (0.10 * fs));
+        kLimAtk = 1.0 - std::exp (-7.0 / (double) kLimLook);   // reaches the target well inside the lookahead
+        kLimRel = 1.0 - std::exp (-1.0 / (0.080 * fs));        // 80 ms release
         dcR = 1.0 - 2.0 * kPi * 2.0 / fs;                   // 2 Hz DC blocker after the tube stage
         reset();
         snap = true;
@@ -270,6 +318,8 @@ public:
         for (auto& c : sec) for (auto& z : c) z = { 0.0, 0.0 };
         for (auto& d : delayX) d.reset();
         for (auto& d : delayE) d.reset();
+        lim.reset();
+        for (int c = 0; c < 2; ++c) { adX[c] = 0.0; }
         resetOs();
         mixOs = 0.0; osRun = false; osWarm = 0; byp = cur.bypass ? 1.0 : 0.0;
         subCount = 0;
@@ -345,7 +395,7 @@ public:
                     upB[c].push (a0, b0, b1);
                     upB[c].push (a1, b2, b3);
                     // note: upB state advances once per 2x sample, so two pushes per input sample
-                    const double s0 = shaper (b0), s1 = shaper (b1), s2 = shaper (b2), s3 = shaper (b3);
+                    const double s0 = adaa (c, b0), s1 = adaa (c, b1), s2 = adaa (c, b2), s3 = adaa (c, b3);
                     const double d0 = downB[c].push (s0, s1), d1 = downB[c].push (s2, s3);
                     double t = downA[c].push (d0, d1);
                     // DC blocker
@@ -364,16 +414,23 @@ public:
                 ++osWarm;
             }
             // mix between the delayed EQ signal and the tube path
-            const bool warm = osRun && osWarm > kLatencySamples + 8;
+            const bool warm = osRun && osWarm > kOsLatency + 8;
             const double mt = (wantTube && warm) ? 1.0 : 0.0;
             if (mixOs < mt) mixOs = std::min (mt, mixOs + kRamp); else if (mixOs > mt) mixOs = std::max (mt, mixOs - kRamp);
             if (osRun && ! wantTube && mixOs == 0.0) { osRun = false; }
 
+            float yv[2] = { 0.0f, 0.0f }, yo[2] = { 0.0f, 0.0f };
             for (int c = 0; c < nch; ++c)
             {
                 float y = ed[c];
                 if (mixOs > 0.0) y = (float) (ed[c] + mixOs * ((double) tp[c] - ed[c]));
                 if (gOut != 1.0) y = (float) (y * gOut);
+                yv[c] = y;
+            }
+            lim.process (yv, yo, nch, cur.limit, kLimAtk, kLimRel);
+            for (int c = 0; c < nch; ++c)
+            {
+                float y = yo[c];
                 if (byp > 0.0)
                 {
                     if (byp >= 1.0) y = xd[c];
@@ -385,6 +442,15 @@ public:
     }
 
 private:
+    // First order antiderivative anti aliasing of the tube shaper (on top of the 4x oversampling).
+    double adaa (int c, double x)
+    {
+        const double xp = adX[c], dx = x - xp;
+        adX[c] = x;
+        if (std::fabs (dx) < 1.0e-6) return shaper (0.5 * (x + xp));
+        return (shaper.F (x) - shaper.F (xp)) / dx;
+    }
+
     void buildFilters()
     {
         const auto a = detail::halfband<detail::kLenA> (8.6);
@@ -443,7 +509,10 @@ private:
     double tubeCur = 0.0, tubeTgt = 0.0, gOut = 1.0, gTgt = 1.0, byp = 0.0, mixOs = 0.0;
     int subCount = 0;
     TubeShaper shaper;
-    FixedDelay delayX[2], delayE[2];
+    FixedDelay<kLatencySamples> delayX[2];   // dry path for bypass, delayed by the full latency
+    FixedDelay<kOsLatency> delayE[2];        // EQ path, delayed to line up with the oversampled tube path
+    Limiter lim;
+    double kLimAtk = 0.2, kLimRel = 0.0003, adX[2] = { 0, 0 };
     detail::Up2<detail::kLenA> upA[2];
     detail::Up2<detail::kLenB> upB[2];
     detail::Down2<detail::kLenB> downB[2];

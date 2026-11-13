@@ -316,7 +316,7 @@ int main()
                 worstAlias = std::max (worstAlias, aliasDb (a));
                 worstNaive = std::max (worstNaive, aliasDb (b));
             }
-        check (worstAlias < -50.0, "tube 10, -6 dBFS sines up to 15 kHz: inharmonic (alias) energy below -50 dB of the output");
+        check (worstAlias < -65.0, "tube 10, -6 dBFS sines up to 15 kHz: inharmonic (alias) energy below -65 dB of the output (ADAA plus 4x)");
         info ("worst alias %.1f dB with the oversampler; the same shaper without oversampling: %.1f dB", worstAlias, worstNaive);
         check (worstAlias < worstNaive - 10.0, "the oversampler lowers the alias level by more than 10 dB");
     }
@@ -435,6 +435,39 @@ int main()
 
     // ---- stability: silence, DC, full scale, NaN, random parameter changes ------------------------------------------
     {
+        {   // ---- safety limiter -------------------------------------------------------------------------------
+            const double fsL = 48000.0;
+            std::vector<float> hot (96000);
+            for (size_t i = 0; i < hot.size(); ++i) hot[i] = (float) (0.9 * std::sin (2.0 * kPi * 100.0 * (double) i / fsL) + 0.3 * std::sin (2.0 * kPi * 3100.0 * (double) i / fsL));
+            auto peakOf = [] (const std::vector<float>& v) { float m = 0; for (float x : v) m = std::max (m, std::fabs (x)); return m; };
+            Params p; p.lowB = 10; p.hiB = 10; p.out = 10; p.tube = 5;   // big boosts, +12 dB output
+            Engine on; on.prepare (fsL); on.setParams (p);
+            auto outOn = run (on, hot);
+            Params q = p; q.limit = false;
+            Engine off; off.prepare (fsL); off.setParams (q);
+            auto outOff = run (off, hot);
+            info ("limiter on: peak %.4f; limiter off: peak %.2f", (double) peakOf (outOn), (double) peakOf (outOff));
+            check (peakOf (outOn) <= 1.0f, "safety limiter: output never exceeds 0 dBFS even with every boost at maximum");
+            check (peakOf (outOff) > 1.5f, "limiter off: the same settings do exceed 0 dBFS (so the test is meaningful)");
+            // transparent below the ceiling: a quiet signal with the limiter on equals the limiter off, bit for bit
+            std::vector<float> quiet (48000);
+            for (size_t i = 0; i < quiet.size(); ++i) quiet[i] = (float) (0.2 * std::sin (2.0 * kPi * 440.0 * (double) i / fsL));
+            Params n0; n0.lowB = 3; n0.tube = 4;
+            Engine a; a.prepare (fsL); a.setParams (n0);
+            Params n1 = n0; n1.limit = false;
+            Engine b; b.prepare (fsL); b.setParams (n1);
+            auto oa = run (a, quiet), ob = run (b, quiet);
+            check (oa == ob, "safety limiter is bit exact below 0 dBFS (limiter on equals off for a quiet signal)");
+            // lookahead: no step at the moment a loud burst starts (largest sample to sample jump stays modest)
+            std::vector<float> burst (48000, 0.0f);
+            for (size_t i = 20000; i < 28000; ++i) burst[i] = (float) (std::min (std::min (1.0, (double) (i - 20000) / 240.0), (double) (28000 - i) / 240.0) * 3.0 * std::sin (2.0 * kPi * 200.0 * (double) (i - 20000) / fsL));   // 5 ms fade in and out, 3x full scale in between
+            Engine c2; c2.prepare (fsL); Params u; c2.setParams (u);
+            auto ob2 = run (c2, burst);
+            check (peakOf (ob2) <= 1.0f, "a 3x over burst is limited to 0 dBFS");
+            float maxStep = 0; for (size_t i = 1; i < ob2.size(); ++i) maxStep = std::max (maxStep, std::fabs (ob2[i] - ob2[i - 1]));
+            info ("largest sample to sample step through the limited burst: %.3f", (double) maxStep);
+            check (maxStep < 0.12f, "the limiter acts smoothly (no clicks at the start of a burst)");
+        }
         {
             Engine e; e.prepare (48000);
             Params p; p.lowB = 10; p.lowA = 10; p.hiB = 10; p.hiA = 10; p.tube = 10; p.out = 10; e.setParams (p);
@@ -446,10 +479,10 @@ int main()
         {
             Engine e; e.prepare (48000);
             Params p; p.lowB = 10; p.out = 5; p.lowF = 0; e.setParams (p);
-            std::vector<float> dc (96000, 0.5f);
+            std::vector<float> dc (96000, 0.2f);   // 0.2 so the boosted DC (x2.37) stays below the 0 dBFS safety limiter
             auto out = run (e, dc);
             bool fin = true; for (float v : out) fin = fin && std::isfinite (v);
-            const double want = 0.5 * std::pow (10.0, 13.5 / 20.0);
+            const double want = 0.2 * std::pow (10.0, 13.5 / 20.0);
             check (fin && std::fabs (out.back() - want) < 0.01 * want, "DC through the low boost settles at the shelf gain");
             info ("DC 0.5 in, %.4f out (expected %.4f)", (double) out.back(), want);
         }

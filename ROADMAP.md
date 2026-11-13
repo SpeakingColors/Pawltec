@@ -4,6 +4,10 @@
 - DSP core with tests (`sh tests/run.sh`), JUCE VST3, native editor ported from the approved mockup
 - Presets, resizing, themes, About & Support, installers, PDF manual with interface tour
 
+## Done in v0.1.1
+- Safety limiter at 0 dBFS (32 sample lookahead, 80 ms release, bit exact below the ceiling; host parameter "Safety Limiter", on by default). Latency is now 72 samples.
+- First order antiderivative anti-aliasing on the tube stage: worst alias -53.6 dB to -72.5 dB (tube 10, up to 15 kHz sines).
+
 ## Not verified yet
 - Installers on real Windows and macOS machines; macOS uninstaller app never run on a Mac
 - Flatpak extension in a real Flatpak DAW
@@ -13,6 +17,4 @@
 
 ## Next
 - Listening pass and retune of presets and shelf slopes
-- Worst-case tube aliasing is about -53.6 dB at tube 10 near 14 to 15 kHz; ADAA or 8x oversampling could improve it
-- Optional output safety limiter (none today; big boosts can exceed 0 dBFS)
 - Signing and notarisation if funding allows

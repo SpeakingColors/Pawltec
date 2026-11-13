@@ -31,6 +31,7 @@ AudioProcessorValueTreeState::ParameterLayout PawltecProcessor::createLayout()
     knob (ids::tube, "Tube", 0.0f);
     knob (ids::out, "Output", 5.0f);
     p.push_back (std::make_unique<AudioParameterBool> (ParameterID { ids::bypass, v }, "Bypass", false));
+    p.push_back (std::make_unique<AudioParameterBool> (ParameterID { ids::limit, v }, "Safety Limiter", true));
     return { p.begin(), p.end() };
 }
 
@@ -40,8 +41,8 @@ PawltecProcessor::PawltecProcessor()
                           .withOutput ("Output", AudioChannelSet::stereo(), true)),
       apvts (*this, nullptr, "PAWLTEC", createLayout())
 {
-    const char* all[11] = { ids::lowF, ids::lowB, ids::lowA, ids::hiF, ids::hiB, ids::bw, ids::attF, ids::hiA, ids::tube, ids::out, ids::bypass };
-    for (int i = 0; i < 11; ++i) raw[(size_t) i] = apvts.getRawParameterValue (all[i]);
+    const char* all[12] = { ids::lowF, ids::lowB, ids::lowA, ids::hiF, ids::hiB, ids::bw, ids::attF, ids::hiA, ids::tube, ids::out, ids::bypass, ids::limit };
+    for (int i = 0; i < 12; ++i) raw[(size_t) i] = apvts.getRawParameterValue (all[i]);
     setLatencySamples (pawl::kLatencySamples);
 }
 
@@ -52,6 +53,7 @@ pawl::Params PawltecProcessor::readParams() const
     q.hiF = (int) raw[3]->load();   q.hiB = raw[4]->load();   q.bw = raw[5]->load();
     q.attF = (int) raw[6]->load();  q.hiA = raw[7]->load();   q.tube = raw[8]->load();
     q.out = raw[9]->load();         q.bypass = raw[10]->load() > 0.5f;
+    q.limit = raw[11]->load() > 0.5f;
     return q;
 }
 

@@ -18,6 +18,7 @@ namespace ids
     inline constexpr const char* tube = "tube";
     inline constexpr const char* out = "out";
     inline constexpr const char* bypass = "bypass";
+    inline constexpr const char* limit = "limit";   // added in 0.1.1: safety limiter at 0 dBFS, on by default
 }
 
 // Plugin-wide settings kept in the saved state (not presets, not automatable).
@@ -79,7 +80,7 @@ private:
     static juce::AudioProcessorValueTreeState::ParameterLayout createLayout();
 
     pawl::Engine core;
-    std::array<std::atomic<float>*, 11> raw {};
+    std::array<std::atomic<float>*, 12> raw {};
     std::array<float, kRing> ringIn {}, ringOut {};
     std::atomic<int> ringPos { 0 };
 

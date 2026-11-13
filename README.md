@@ -18,8 +18,9 @@ Get the zip from the [Releases page](https://github.com/SpeakingColors/pawltec/r
 
 ## Features
 - 4 filter sections: low boost (up to +13.5 dB), low atten (up to -17.5 dB), high boost (up to +18 dB, narrow to wide), high atten (up to -16 dB)
-- Tube stage at 4x oversampling with level match; exactly clean at 0
-- Fixed 40 sample latency (reported to the host), smoothed knobs, bit exact bypass
+- Tube stage at 4x oversampling plus antiderivative anti-aliasing (worst alias -72.5 dB), level match; exactly clean at 0
+- Safety limiter at 0 dBFS with lookahead (host parameter, on by default; bit exact below the ceiling)
+- Fixed 72 sample latency (reported to the host), smoothed knobs, bit exact bypass
 - Live response curve with draggable handles, spectrum, in and out meters with dB scales
 - 16 factory presets, your own presets (save, rename, delete, export, import)
 - Resizable window, three colour looks, hover info bubbles (can be turned off)
