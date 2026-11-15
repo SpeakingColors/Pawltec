@@ -1,0 +1,65 @@
+[
+  {
+    "before": "pawltec-before-mix.mp3",
+    "after": "pawltec-after-mix-low-trick-60.mp3",
+    "preset": "Low Trick 60",
+    "source": "Full mix loop",
+    "description": "Full mix loop through the real Pawltec C++ core with the factory preset Low Trick 60 (Mix; trick, low end). The After clip is level matched to the Before clip (-1.5 dB)."
+  },
+  {
+    "before": "pawltec-before-drums.mp3",
+    "after": "pawltec-after-drums-low-trick-60.mp3",
+    "preset": "Low Trick 60",
+    "source": "Drum loop",
+    "description": "Drum loop through the real Pawltec C++ core with the factory preset Low Trick 60 (Mix; trick, low end). The After clip is level matched to the Before clip (-2.0 dB)."
+  },
+  {
+    "before": "pawltec-before-lead.mp3",
+    "after": "pawltec-after-lead-low-trick-60.mp3",
+    "preset": "Low Trick 60",
+    "source": "Vocal-like lead",
+    "description": "Vocal-like lead through the real Pawltec C++ core with the factory preset Low Trick 60 (Mix; trick, low end). The After clip is level matched to the Before clip (+0.9 dB)."
+  },
+  {
+    "before": "pawltec-before-mix.mp3",
+    "after": "pawltec-after-mix-silky-top.mp3",
+    "preset": "Silky Top",
+    "source": "Full mix loop",
+    "description": "Full mix loop through the real Pawltec C++ core with the factory preset Silky Top (Master; smooth, air). The After clip is level matched to the Before clip (-0.2 dB)."
+  },
+  {
+    "before": "pawltec-before-drums.mp3",
+    "after": "pawltec-after-drums-silky-top.mp3",
+    "preset": "Silky Top",
+    "source": "Drum loop",
+    "description": "Drum loop through the real Pawltec C++ core with the factory preset Silky Top (Master; smooth, air). The After clip is level matched to the Before clip (-0.3 dB)."
+  },
+  {
+    "before": "pawltec-before-lead.mp3",
+    "after": "pawltec-after-lead-silky-top.mp3",
+    "preset": "Silky Top",
+    "source": "Vocal-like lead",
+    "description": "Vocal-like lead through the real Pawltec C++ core with the factory preset Silky Top (Master; smooth, air). The After clip is level matched to the Before clip (-0.0 dB)."
+  },
+  {
+    "before": "pawltec-before-mix.mp3",
+    "after": "pawltec-after-mix-presence-push.mp3",
+    "preset": "Presence Push",
+    "source": "Full mix loop",
+    "description": "Full mix loop through the real Pawltec C++ core with the factory preset Presence Push (Synth; lead, presence). The After clip is level matched to the Before clip (-0.1 dB)."
+  },
+  {
+    "before": "pawltec-before-drums.mp3",
+    "after": "pawltec-after-drums-presence-push.mp3",
+    "preset": "Presence Push",
+    "source": "Drum loop",
+    "description": "Drum loop through the real Pawltec C++ core with the factory preset Presence Push (Synth; lead, presence). The After clip is level matched to the Before clip (-0.0 dB)."
+  },
+  {
+    "before": "pawltec-before-lead.mp3",
+    "after": "pawltec-after-lead-presence-push.mp3",
+    "preset": "Presence Push",
+    "source": "Vocal-like lead",
+    "description": "Vocal-like lead through the real Pawltec C++ core with the factory preset Presence Push (Synth; lead, presence). The After clip is level matched to the Before clip (-0.4 dB)."
+  }
+]
