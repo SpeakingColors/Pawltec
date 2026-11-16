@@ -1,0 +1,583 @@
+<title>Pawltec Mockup</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;1,700;1,800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* v1.2: low atten narrowed to match circuit-sim dip positions (see facts.md). v1.1: note and frequency readouts, peak labels, Try tips. Layout: one fixed-size stage (1200 x 640) scaled as a piece. Wood cheeks left and right, faceplate between:
+   header, two displays (response curve, spectrum), the knob panel in four groups, preview rig, footer.
+   In/out meters run down the far right. */
+:root{
+  --bg:#0b0b0d; --plate:#16171a; --plate2:#1e2024; --line:#33363d; --ink:#f4f5f7; --dim:#a9adb8;
+  --title:#e8e9ee; --accent:#02EBBA; --disp:#06080a; --grid:#1b2523;
+  --g:#02EBBA; --y:#FFD100; --o:#F57F01; --r:#FF1383; --b:#6CC9F5; --p:#A43DFF;
+  --sel:#241238; --selb:#CD92FE; --pink:#FF7BB1;
+  --font-ui:'Barlow Condensed','Arial Narrow',Arial,sans-serif;
+  --font-num:'JetBrains Mono','SFMono-Regular',Consolas,monospace;
+  color-scheme:dark;
+}
+#app[data-look="A"]{--bg:#161638;--plate:#1c1c4a;--plate2:#2C2C62;--line:#33403f;--ink:#e8e6e1;--dim:#9a9690;--title:#E1CBF4;--accent:#FFA600;--disp:#05060d;--y:#FFA600}
+#app[data-look="B"]{--bg:#0b0b0d;--plate:#15161a;--plate2:#1c1d22;--line:#2b2d34;--ink:#f4f5f7;--dim:#a9adb8;--title:#E1CBF4;--accent:#A43DFF;--disp:#06080a}
+html,body{background:var(--bg);margin:0}
+#stage,#stage *{box-sizing:border-box}
+body{color:var(--ink);font-family:var(--font-ui);padding-block:12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));overflow-x:hidden}
+#app{background:var(--bg);display:flex;flex-direction:column;align-items:center;gap:8px;min-width:0}
+#frame{position:relative;flex:none}
+#stage{position:absolute;left:0;top:0;width:1200px;height:640px;transform-origin:0 0;display:flex;background:#000;user-select:none;-webkit-user-select:none;overflow:hidden}
+.cheek{width:52px;flex:none;position:relative;cursor:default}
+.cheek canvas{width:100%;height:100%;display:block}
+.main{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--plate);position:relative}
+.hdr{height:46px;flex:none;display:flex;align-items:center;gap:10px;padding:0 12px;border-bottom:1px solid var(--line);background:var(--plate2)}
+.brand{display:flex;align-items:center;gap:8px}
+.brand .name{font-style:italic;font-weight:800;font-size:28px;letter-spacing:.5px;color:#fff;line-height:1;white-space:nowrap}
+.brand .name i{color:var(--pink);font-style:italic}
+.brand .s87{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+.sp{flex:1}
+button,select,input{font-family:var(--font-ui)}
+.btn{background:var(--plate);color:var(--ink);border:1px solid var(--line);border-radius:4px;padding:3px 10px;font-size:14px;letter-spacing:.5px;cursor:pointer;line-height:1.2;white-space:nowrap;text-decoration:none;display:inline-block}
+.btn:hover{border-color:var(--dim)}
+.btn:focus-visible,.knob:focus-visible,.chip:focus-visible,.rh:focus-visible,.clk:focus-visible{outline:2px solid var(--selb);outline-offset:2px}
+.btn.on{background:var(--sel);border-color:var(--selb);color:#E1CBF4}
+.presetbar{display:flex;align-items:center;gap:4px}
+.presetbar .pname{min-width:190px;text-align:center;font-size:16px;font-weight:600}
+.body{flex:1;display:grid;grid-template-columns:1fr 92px;min-height:0;overflow:hidden}
+.left{display:flex;flex-direction:column;min-width:0}
+.disp{height:330px;flex:none;display:flex;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line);background:var(--plate2)}
+.dcell{display:flex;flex-direction:column;gap:2px;min-width:0}
+.dcell .cap{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--title);height:16px;display:flex;justify-content:space-between;align-items:center;white-space:nowrap}
+.dcell .cap .leg{display:flex;gap:10px;letter-spacing:1px;font-size:11px;color:var(--dim)}
+.leg b{font-weight:700}
+.dcell canvas{background:var(--disp);border:1px solid var(--line);border-radius:3px;display:block}
+/* knob panel: original faceplate art, four engraved groups, screws in the corners */
+.knobs{height:186px;flex:none;display:flex;align-items:stretch;justify-content:space-between;padding:8px 10px 6px;position:relative;
+  background:repeating-linear-gradient(90deg,rgba(255,255,255,.012) 0 2px,rgba(0,0,0,.02) 2px 4px),var(--plate)}
+.knobs::before,.knobs::after{content:"";position:absolute;width:7px;height:7px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#8c8f99,#2a2b30);top:4px}
+.knobs::before{left:3px}.knobs::after{right:3px}
+.grp{position:relative;display:flex;gap:0;border:1px solid var(--line);border-radius:10px;padding:16px 5px 0;background:rgba(0,0,0,.14)}
+.grp .gt{position:absolute;top:-8px;left:12px;background:var(--plate);padding:0 6px;font-size:13px;letter-spacing:2px;font-weight:700;text-transform:uppercase;color:var(--title);white-space:nowrap}
+.grp .gt svg{vertical-align:-2px;margin-right:4px}
+.kcell{display:flex;flex-direction:column;align-items:center;width:90px}
+.kcell .lab{font-size:14px;letter-spacing:2px;color:var(--title);font-weight:700;height:16px;text-transform:uppercase;white-space:nowrap}
+.knob{width:90px;height:90px;cursor:ns-resize;touch-action:none;border-radius:50%}
+.knob svg{display:block}
+.kval{font-family:var(--font-num);font-size:11px;color:var(--dim);margin-top:0;height:30px;white-space:nowrap;text-align:center;line-height:15px}
+.kval b{color:var(--ink);font-weight:600}
+.rig{height:52px;flex:none;border-top:1px solid var(--line);background:var(--plate2);display:flex;align-items:center;gap:10px;padding:0 12px;position:relative}
+.rig .tag{position:absolute;right:10px;bottom:4px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);border:1px dashed var(--line);padding:0 6px;border-radius:3px}
+.rig select{background:var(--disp);color:var(--ink);border:1px solid var(--line);border-radius:4px;padding:4px 6px;font-size:14px}
+.rig .hint{font-size:13px;color:var(--dim);max-width:470px;line-height:1.15}
+.meters{border-left:1px solid var(--line);background:var(--plate2);display:flex;flex-direction:column;align-items:center;padding:8px 0 6px;gap:2px}
+.mcaps{position:relative;width:84px;height:16px;font-size:12px;letter-spacing:1.5px;color:var(--title);text-transform:uppercase}
+.mcaps span{position:absolute;top:0;width:36px;text-align:center}
+.mpk{position:relative;width:84px;height:16px;font-family:var(--font-num);font-size:11px;color:var(--dim)}
+.mpk span{position:absolute;top:0;width:40px;text-align:center;white-space:nowrap}
+#cvMet{display:block;cursor:pointer}
+.foot{height:26px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 12px;font-size:12px;color:var(--dim);letter-spacing:1px;border-top:1px solid var(--line);background:var(--plate2)}
+/* overlays */
+#modal{position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:30}
+#modal[hidden]{display:none}
+.dlg{width:760px;max-height:560px;background:var(--plate);border:1px solid var(--selb);border-radius:8px;display:flex;flex-direction:column;box-shadow:0 10px 40px #000}
+.dlg h2{margin:0;padding:10px 16px;font-size:20px;letter-spacing:1px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;color:var(--title)}
+.dlg .dbody{padding:12px 16px;overflow:hidden;font-size:15px;line-height:1.35;min-height:0}
+.dlg .dfoot{padding:10px 16px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.dlg label{display:flex;align-items:center;gap:8px;margin:6px 0}
+.dlg input[type=text],.dlg input:not([type]),.dlg select,.dlg textarea{background:var(--disp);color:var(--ink);border:1px solid var(--line);border-radius:4px;padding:5px 8px;font-size:15px}
+.dlg textarea{width:100%;height:230px;font-family:var(--font-num);font-size:12px;resize:none}
+.dlg kbd{font-family:var(--font-num);font-size:12px;border:1px solid var(--line);border-radius:3px;padding:0 5px;background:var(--disp)}
+.dlg table{border-collapse:collapse;width:100%}
+.dlg td{padding:3px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+.dlg p{margin:6px 0}
+.pb{display:grid;grid-template-columns:300px 1fr;gap:14px;height:410px}
+.pb .list{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:4px;overflow:hidden;background:var(--disp)}
+.pb .item{padding:1px 10px;cursor:pointer;display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid var(--line);font-size:15px;flex:none}
+.pb .item.sel{background:var(--sel);color:#E1CBF4}
+.pb .item small{color:var(--dim);font-size:12px;letter-spacing:1px;text-transform:uppercase}
+.chips{display:flex;gap:4px;flex-wrap:wrap;margin:6px 0}
+.chip{background:var(--disp);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:1px 9px;font-size:13px;cursor:pointer}
+.chip.on{background:var(--sel);border-color:var(--selb);color:#E1CBF4}
+.warn{color:var(--r)}
+#tip{position:absolute;max-width:300px;background:#000;border:1px solid var(--selb);color:var(--ink);padding:6px 9px;border-radius:5px;font-size:14px;line-height:1.25;z-index:50;pointer-events:none}
+#tip[hidden]{display:none}
+#toast{position:absolute;left:50%;bottom:34px;transform:translateX(-50%);background:#000;border:1px solid var(--selb);padding:5px 14px;border-radius:5px;font-size:15px;z-index:60}
+#toast[hidden]{display:none}
+.rh{position:absolute;z-index:20;background:transparent}
+.rh.n{left:12px;right:12px;top:-4px;height:8px;cursor:ns-resize}.rh.s{left:12px;right:12px;bottom:-4px;height:8px;cursor:ns-resize}
+.rh.e{top:12px;bottom:12px;right:-4px;width:8px;cursor:ew-resize}.rh.w{top:12px;bottom:12px;left:-4px;width:8px;cursor:ew-resize}
+.rh.ne{right:-5px;top:-5px;width:14px;height:14px;cursor:nesw-resize}.rh.sw{left:-5px;bottom:-5px;width:14px;height:14px;cursor:nesw-resize}
+.rh.nw{left:-5px;top:-5px;width:14px;height:14px;cursor:nwse-resize}.rh.se{right:-5px;bottom:-5px;width:14px;height:14px;cursor:nwse-resize}
+.zoomrow{display:flex;gap:6px;align-items:center;font-size:13px;color:var(--dim);flex-wrap:wrap;justify-content:center}
+.zoomrow .btn{padding:1px 8px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div id="app" data-look="C">
+  <div id="frame">
+    <div id="stage">
+      <div class="cheek" id="cheekL" data-tip="Double-click the wood to reset the window to 100%."><canvas></canvas></div>
+      <div class="main">
+        <header class="hdr">
+          <div class="brand" data-tip="Pawltec by Studio 87. A free, open source tube-style program equalizer.">
+            <svg width="34" height="34" viewBox="0 0 64 64" aria-label="Cat head logo"><path d="M8 6 L24 22 H40 L56 6 L60 36 Q60 58 32 60 Q4 58 4 36 Z" fill="#FF7BB1"/><path d="M12 14 L21 23 H14 Z M52 14 L43 23 H50 Z" fill="#FBBDD0"/><ellipse cx="22" cy="36" rx="4" ry="5" fill="#16171a"/><ellipse cx="42" cy="36" rx="4" ry="5" fill="#16171a"/><path d="M29 44 H35 L32 48 Z" fill="#16171a"/><path d="M32 48 Q28 53 24 50 M32 48 Q36 53 40 50" stroke="#16171a" stroke-width="2" fill="none"/><path d="M2 40 H14 M2 46 H14 M62 40 H50 M62 46 H50" stroke="#FBBDD0" stroke-width="1.6"/></svg>
+            <span class="name">Paw<i>l</i>tec</span><span class="s87">Studio 87</span>
+          </div>
+          <div class="sp"></div>
+          <div class="presetbar">
+            <button class="btn" id="pPrev" data-tip="Previous preset ([ key).">&#9664;</button>
+            <button class="btn pname" id="pName" data-tip="Open the preset browser. Double-click to rename your own preset.">Start Here</button>
+            <button class="btn" id="pNext" data-tip="Next preset (] key).">&#9654;</button>
+            <button class="btn" id="pSave" data-tip="Save these settings as your own preset. Asks before overwriting.">Save</button>
+          </div>
+          <div class="sp"></div>
+          <button class="btn" id="bBypass" aria-pressed="false" data-tip="Bypass: hear the dry signal to compare with the equalized sound (B key). The meters keep moving.">Bypass</button>
+          <button class="btn" id="bGuide" data-tip="Short guide and keyboard shortcuts.">Guide</button>
+          <button class="btn" id="bSettings" data-tip="Info bubbles, power saving, colour look.">Settings</button>
+          <button class="btn" id="bAbout" data-tip="About Pawltec, support and where your files live.">About &amp; Support</button>
+        </header>
+        <div class="body">
+          <div class="left">
+            <section class="disp">
+              <div class="dcell"><div class="cap"><span>Response curve (dB)</span><span class="leg"><span style="color:var(--ink)"><b>&#9644;</b> total</span><span style="color:var(--g)"><b>&#9644;</b> low boost</span><span style="color:var(--pink)"><b>&#9644;</b> low atten</span><span style="color:var(--y)"><b>&#9644;</b> high boost</span><span style="color:var(--b)"><b>&#9644;</b> high atten</span></span></div>
+                <canvas id="cvResp" width="630" height="290" style="width:630px;height:290px;cursor:crosshair" data-tip="What the equalizer does to each frequency, in dB. The thick line is the total; the thin lines are the four sections. Drag a round handle up or down to change that section, or sideways to pick another frequency. Hover to read a value."></canvas></div>
+              <div class="dcell"><div class="cap"><span>Spectrum, in and out (dBFS)</span><span class="leg"><span><b>&#9644;</b> in</span><span style="color:var(--accent)"><b>&#9644;</b> out</span></span></div>
+                <canvas id="cvSpec" width="346" height="290" style="width:346px;height:290px" data-tip="Live spectrum of the preview sound. Grey line: before the equalizer. Coloured fill: after it. Scale is dB below full level."></canvas></div>
+            </section>
+            <section class="knobs" id="knobs"></section>
+            <section class="rig">
+              <button class="btn" id="rigPlay" data-tip="Start or stop the preview sound (Space). Displays and meters also move while it is silent.">&#9654; Play preview</button>
+              <select id="rigSrc" aria-label="Preview source" data-tip="Test sound for the preview. Pink noise shows the curve most clearly.">
+                <option value="mix">Full mix loop</option><option value="pink">Pink noise</option><option value="drums">Drum loop</option><option value="bass">Bass</option><option value="chords">Chord stabs</option><option value="file">Your file</option>
+              </select>
+              <button class="btn" id="rigFile" data-tip="Load your own audio file for the preview. Nothing is uploaded.">Load file</button>
+              <input type="file" id="rigFileIn" accept="audio/*" hidden>
+              <div class="hint" id="rigHint">Bypass (B) switches between equalized and dry so you can compare.</div>
+              <div class="tag">Preview rig, not part of the plugin</div>
+            </section>
+          </div>
+          <aside class="meters">
+            <div class="mcaps"><span style="left:3px">In</span><span style="left:45px">Out</span></div>
+            <canvas id="cvMet" width="84" height="300" style="width:84px;height:300px" data-tip="Level of the sound going in and coming out, in dB. Blue is safe, purple is the warning zone, pink is clipping. Click to clear the clip lights."></canvas>
+            <div class="mpk"><span id="pkIn" style="left:1px">-inf</span><span id="pkOut" style="left:43px">-inf</span></div>
+          </aside>
+        </div>
+        <footer class="foot"><span>Studio 87 &middot; Pawltec v0.1.2 design mockup</span><span id="winsz">1200 &times; 640</span></footer>
+      </div>
+      <div class="cheek" id="cheekR" data-tip="Double-click the wood to reset the window to 100%."><canvas></canvas></div>
+      <div id="modal" hidden></div>
+      <div id="tip" hidden></div>
+      <div id="toast" hidden></div>
+    </div>
+    <div class="rh n" data-h="n"></div><div class="rh s" data-h="s"></div><div class="rh e" data-h="e"></div><div class="rh w" data-h="w"></div>
+    <div class="rh ne" data-h="ne"></div><div class="rh nw" data-h="nw"></div><div class="rh se" data-h="se"></div><div class="rh sw" data-h="sw"></div>
+  </div>
+  <div class="zoomrow"><button class="btn" id="zMinus" aria-label="Smaller">&minus;</button><button class="btn" id="zPct">100%</button><button class="btn" id="zPlus" aria-label="Larger">+</button><span>Drag any edge or corner to resize. Double-click the wood to reset.</span></div>
+</div>
+
+<script>
+(function(){
+'use strict';
+/* ============ Filter model (RBJ biquads, see facts.md) ============ */
+let FS=48000;
+const LOWF=[20,30,60,100], HIF=[3000,4000,5000,8000,10000,12000,16000], ATTF=[5000,10000,20000];
+const MAXDB={lowB:13.5,lowA:17.5,hiB:18,hiA:16};
+const LB_RATIO=2.2, LB_S=1.3, LA_RATIO=3, LA_S=0.4, HA_S=0.5;
+const qOf=bw=>2.2*Math.pow(0.3/2.2,bw/10);
+function shelf(f0,G,S,high){const A=Math.pow(10,G/40),w=2*Math.PI*f0/FS,c=Math.cos(w),s=Math.sin(w);
+ let d=(A+1/A)*(1/S-1)+2;if(d<1e-6)d=1e-6;const al=s/2*Math.sqrt(d),sq=2*Math.sqrt(A)*al;let b0,b1,b2,a0,a1,a2;
+ if(!high){b0=A*((A+1)-(A-1)*c+sq);b1=2*A*((A-1)-(A+1)*c);b2=A*((A+1)-(A-1)*c-sq);a0=(A+1)+(A-1)*c+sq;a1=-2*((A-1)+(A+1)*c);a2=(A+1)+(A-1)*c-sq}
+ else{b0=A*((A+1)+(A-1)*c+sq);b1=-2*A*((A-1)+(A+1)*c);b2=A*((A+1)+(A-1)*c-sq);a0=(A+1)-(A-1)*c+sq;a1=2*((A-1)-(A+1)*c);a2=(A+1)-(A-1)*c-sq}
+ return [b0/a0,b1/a0,b2/a0,a1/a0,a2/a0]}
+function peak(f0,Q,G){const A=Math.pow(10,G/40),w=2*Math.PI*f0/FS,c=Math.cos(w),al=Math.sin(w)/(2*Q),a0=1+al/A;
+ return [(1+al*A)/a0,-2*c/a0,(1-al*A)/a0,-2*c/a0,(1-al/A)/a0]}
+function magDb(k,f){const w=2*Math.PI*f/FS,c1=Math.cos(w),s1=Math.sin(w),c2=Math.cos(2*w),s2=Math.sin(2*w);
+ const nr=k[0]+k[1]*c1+k[2]*c2,ni=-(k[1]*s1+k[2]*s2),dr=1+k[3]*c1+k[4]*c2,di=-(k[3]*s1+k[4]*s2);
+ return 10*Math.log10((nr*nr+ni*ni)/(dr*dr+di*di)+1e-30)}
+const DEF={lowF:2,lowB:0,lowA:0,hiF:4,hiB:0,bw:5,attF:2,hiA:0,tube:0,out:5};
+const st=Object.assign({bypass:0},DEF);
+function coefOf(key,s){s=s||st;
+ if(key==='lowB')return shelf(LOWF[s.lowF]*LB_RATIO,MAXDB.lowB*s.lowB/10,LB_S,false);
+ if(key==='lowA')return shelf(LOWF[s.lowF]*LA_RATIO,-MAXDB.lowA*s.lowA/10,LA_S,false);
+ if(key==='hiB')return peak(HIF[s.hiF],qOf(s.bw),MAXDB.hiB*s.hiB/10);
+ return shelf(ATTF[s.attF],-MAXDB.hiA*s.hiA/10,HA_S,true)}
+const KEYS=['lowB','lowA','hiB','hiA'];
+function markerF(key,s){s=s||st;return key==='lowB'||key==='lowA'?LOWF[s.lowF]:key==='hiB'?HIF[s.hiF]:ATTF[s.attF]}
+function totalDb(f){let t=0;for(const k of KEYS)t+=magDb(coefOf(k),f);return t}
+/* ============ Processor: source, EQ, tube stage, analysis feed ============ */
+const nz=i=>{let h=Math.imul((i|0)^0x5bd1e995,0x9E3779B1);h^=h>>>15;h=Math.imul(h,0x85ebca6b);h^=h>>>13;h=Math.imul(h,0xc2b2ae35);h^=h>>>16;return (h>>>0)/2147483648-1};
+const BPM=140,STEP=60/BPM/4,KP=[1,0,0,0,1,0,0,0,1,0,1,0,1,0,0,0],SP=[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,1],HP_=[0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,1],CP=[1,0,0,1,0,0,1,0,0,0,1,0,0,1,0,0];
+function tauOf(pat,t){const s=t/STEP,si=Math.floor(s),fr=s-si;for(let k=0;k<16;k++){if(pat[(((si-k)%16)+16)%16])return (k+fr)*STEP}return 99}
+let fileBuf=null;
+const pk={b0:0,b1:0,b2:0,b3:0,b4:0,b5:0,b6:0};
+function srcSample(kind,i,fs){const t=i/fs;let v=0;
+ if(kind==='file'&&fileBuf)return fileBuf[i%fileBuf.length];
+ if(kind==='pink'){const w=nz(i*7+3);pk.b0=.99886*pk.b0+w*.0555179;pk.b1=.99332*pk.b1+w*.0750759;pk.b2=.96900*pk.b2+w*.1538520;pk.b3=.86650*pk.b3+w*.3104856;pk.b4=.55000*pk.b4+w*.5329522;pk.b5=-.7616*pk.b5-w*.0168980;
+  const o=(pk.b0+pk.b1+pk.b2+pk.b3+pk.b4+pk.b5+pk.b6+w*.5362)*.11;pk.b6=w*.115926;return o}
+ const dr=(kind==='drums'||kind==='mix'),ba=(kind==='bass'||kind==='mix'),ch=(kind==='chords'||kind==='mix');
+ if(dr){const tk=tauOf(KP,t),ts=tauOf(SP,t),th=tauOf(HP_,t);
+  if(tk<.5)v+=(Math.sin(2*Math.PI*(45*tk+90*(1-Math.exp(-35*tk))/35))*Math.exp(-tk*9)+(tk<.004?nz(i)*.5:0))*.9;
+  if(ts<.3)v+=(nz(i*3)*Math.exp(-ts*18)*.5+Math.sin(2*Math.PI*190*ts)*Math.exp(-ts*25)*.5)*.7;
+  if(th<.1)v+=(nz(i)-nz(i-1))*Math.exp(-th*60)*.25}
+ if(ba){const f=55,ph=(t*f)%1,env=.7+.3*Math.sin(2*Math.PI*t*BPM/60);v+=(2*ph-1)*.28*env}
+ if(ch){const tc=tauOf(CP,t);if(tc<.35){let s=0;for(const f of[220,261.63,329.63,523.25,659.25,1046.5]){s+=(2*((t*f)%1)-1)*(f>500?.5:1)}v+=s/3*.35*Math.exp(-tc*7)}}
+ return v}
+const RING=4096;
+class Proc{
+ constructor(){this.pos=0;this.kind='mix';this.cur=[];this.tgt=[];for(let i=0;i<4;i++){this.cur.push([1,0,0,0,0]);this.tgt.push([1,0,0,0,0])}
+  this.z=[0,1,2,3].map(()=>[[0,0],[0,0]]);this.gOut=1;this.gTgt=1;this.inPk=0;this.outPk=0;this.rIn=new Float32Array(RING);this.rOut=new Float32Array(RING);this.rp=0;this.snapNext=true}
+ update(){KEYS.forEach((k,i)=>{this.tgt[i]=coefOf(k)});if(this.snapNext){this.cur=this.tgt.map(a=>a.slice());this.snapNext=false}
+  this.gTgt=Math.pow(10,(st.out-5)*2.4/20)}
+ render(n,oL,oR){const kk=1-Math.exp(-16/(0.010*FS)),tube=st.tube,g=1+tube*.5,bias=.08*tube/10,tb=Math.tanh(bias),norm=g*(1-tb*tb),byp=st.bypass;
+  let ip=0,op=0;
+  for(let i=0;i<n;i++){
+   if((i&15)===0){for(let s=0;s<4;s++){const c=this.cur[s],t=this.tgt[s];for(let j=0;j<5;j++)c[j]+=(t[j]-c[j])*kk}}
+   const sm=srcSample(this.kind,this.pos+i,FS)*.5,x=[sm,this.kind==='mix'||this.kind==='chords'?srcSample(this.kind,this.pos+i+23,FS)*.45+sm*.1:sm];
+   ip=Math.max(ip,Math.abs(x[0]),Math.abs(x[1]));
+   const out=[0,0];
+   for(let ch=0;ch<2;ch++){let y=x[ch];
+    if(!byp){for(let s=0;s<4;s++){const c=this.cur[s],z=this.z[s][ch];const o=c[0]*y+z[0];z[0]=c[1]*y-c[3]*o+z[1];z[1]=c[2]*y-c[4]*o;y=o}
+     if(tube>0)y=(Math.tanh(g*y+bias)-tb)/norm;
+     this.gOut+=(this.gTgt-this.gOut)*.002;y*=this.gOut}
+    if(!isFinite(y)){y=0;this.z.forEach(a=>{a[0][0]=a[0][1]=a[1][0]=a[1][1]=0})}
+    out[ch]=y;op=Math.max(op,Math.abs(y))}
+   if(oL){oL[i]=Math.max(-1,Math.min(1,out[0]));oR[i]=Math.max(-1,Math.min(1,out[1]))}
+   this.rIn[this.rp]=(x[0]+x[1])*.5;this.rOut[this.rp]=(out[0]+out[1])*.5;this.rp=(this.rp+1)&(RING-1)}
+  this.pos+=n;const dk=Math.pow(.9,n/512);this.inPk=Math.max(ip,this.inPk*dk);this.outPk=Math.max(op,this.outPk*dk)}}
+const proc=new Proc();
+/* ============ FFT analysis ============ */
+const NF=RING,WIN=new Float32Array(NF),COS=new Float32Array(NF/2),SIN=new Float32Array(NF/2);let wsum=0;
+for(let i=0;i<NF;i++){WIN[i]=.5-.5*Math.cos(2*Math.PI*i/NF);wsum+=WIN[i]}
+for(let i=0;i<NF/2;i++){COS[i]=Math.cos(2*Math.PI*i/NF);SIN[i]=-Math.sin(2*Math.PI*i/NF)}
+const BREV=new Uint16Array(NF);for(let i=0,b=Math.log2(NF);i<NF;i++){let r=0;for(let j=0;j<b;j++)if(i&(1<<j))r|=1<<(b-1-j);BREV[i]=r}
+const fr=new Float32Array(NF),fi=new Float32Array(NF);
+function spectrumOf(ring,rp){for(let i=0;i<NF;i++){fr[BREV[i]]=ring[(rp+i)&(NF-1)]*WIN[i];fi[BREV[i]]=0}
+ for(let len=2;len<=NF;len<<=1){const h=len>>1,step=NF/len;for(let a=0;a<NF;a+=len)for(let j=0;j<h;j++){const wr=COS[j*step],wi=SIN[j*step],i1=a+j,i2=i1+h,tr=fr[i2]*wr-fi[i2]*wi,ti=fr[i2]*wi+fi[i2]*wr;fr[i2]=fr[i1]-tr;fi[i2]=fi[i1]-ti;fr[i1]+=tr;fi[i1]+=ti}}
+ const m=new Float32Array(NF/2);for(let i=0;i<NF/2;i++)m[i]=(fr[i]*fr[i]+fi[i]*fi[i])*4/(wsum*wsum);return m}/* power */
+const SPW=300;let spIn=new Float32Array(SPW).fill(-120),spOut=new Float32Array(SPW).fill(-120);
+function columns(pw,prev){const out=new Float32Array(SPW),lo=Math.log10(20),hi=Math.log10(20000),bw=FS/NF;
+ for(let x=0;x<SPW;x++){const f0=Math.pow(10,lo+(hi-lo)*x/SPW),f1=Math.pow(10,lo+(hi-lo)*(x+1)/SPW),b0=f0/bw,b1=f1/bw;let db;
+  if(b1-b0<1){const b=(b0+b1)/2,i=Math.floor(b),fr_=b-i,d0=10*Math.log10(pw[i]+1e-14),d1=10*Math.log10(pw[Math.min(i+1,NF/2-1)]+1e-14);db=d0+(d1-d0)*fr_}
+  else{let s=0,c=0;for(let i=Math.ceil(b0);i<=Math.floor(b1)&&i<NF/2;i++){s+=pw[i];c++}db=10*Math.log10((c?s/c:1e-14)+1e-14)}
+  out[x]=db}
+ const sm=new Float32Array(SPW);for(let x=0;x<SPW;x++)sm[x]=(out[Math.max(0,x-1)]+out[x]*2+out[Math.min(SPW-1,x+1)])/4;
+ for(let x=0;x<SPW;x++){prev[x]=sm[x]>prev[x]?sm[x]:prev[x]-1.2}return prev}
+/* ============ DOM helpers ============ */
+const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+const el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!==undefined)e.innerHTML=h;return e};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let toastT;function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,1600)}
+const app=$('#app'),stage=$('#stage'),frame=$('#frame');
+/* ============ Knob panel ============ */
+const dial=(k)=>({lowB:'+',lowA:'-',hiB:'+',hiA:'-'}[k]);
+const fmtF=f=>f>=1000?(f/1000)+' kHz':f+' Hz';
+const sg=(m,v,p)=>{const d=m*v/10;return d<.05?'0.0 dB':p+d.toFixed(1)+' dB'};
+const DBR={lowB:v=>sg(MAXDB.lowB,v,'+'),lowA:v=>sg(MAXDB.lowA,v,'-'),hiB:v=>sg(MAXDB.hiB,v,'+'),hiA:v=>sg(MAXDB.hiA,v,'-')};
+const TUBEWORD=v=>v<.5?'clean':v<3?'light':v<6?'warm':'hot';
+const KN=[
+ {id:'lowF',grp:'low',lab:'Freq',steps:LOWF.map(f=>String(f)),def:2,tip:'Low frequency: 20, 30, 60 or 100 Hz. Sets where both the low boost and the low atten work. Click a number, drag, or use the wheel.',val:v=>`<b>${LOWF[v]} Hz</b><br>shared`},
+ {id:'lowB',grp:'low',lab:'Boost',max:10,def:0,tip:'Low boost: lifts the bass around the chosen low frequency, up to +13.5 dB. 0 does nothing.',val:v=>`<b>${v.toFixed(1)}</b><br>${DBR.lowB(v)}`},
+ {id:'lowA',grp:'low',lab:'Atten',max:10,def:0,tip:'Low atten: turns the lows down, up to -17.5 dB. Use it with Boost on the same frequency for the classic trick: a fat bump with a clean dip just above it.',val:v=>`<b>${v.toFixed(1)}</b><br>${DBR.lowA(v)}`},
+ {id:'hiF',grp:'hib',lab:'Freq',steps:HIF.map(f=>String(f/1000)),def:4,tip:'High boost frequency: 3, 4, 5, 8, 10, 12 or 16 kHz. This is the centre of the high boost bell.',val:v=>`<b>${fmtF(HIF[v])}</b><br>centre`},
+ {id:'hiB',grp:'hib',lab:'Boost',max:10,def:0,tip:'High boost: lifts the highs around the chosen frequency, up to +18 dB. Use Bandwidth to make it narrow or wide.',val:v=>`<b>${v.toFixed(1)}</b><br>${DBR.hiB(v)}`},
+ {id:'bw',grp:'hib',lab:'Width',max:10,def:5,tip:'Bandwidth of the high boost. 0 is narrow and pointed, 10 is wide and gentle. Wide settings sound smooth and natural.',val:v=>`<b>${v.toFixed(1)}</b><br>Q ${qOf(v).toFixed(2)}`},
+ {id:'attF',grp:'hia',lab:'Freq',steps:ATTF.map(f=>String(f/1000)),def:2,tip:'High atten frequency: 5, 10 or 20 kHz. Above this point the highs are turned down smoothly.',val:v=>`<b>${fmtF(ATTF[v])}</b><br>corner`},
+ {id:'hiA',grp:'hia',lab:'Atten',max:10,def:0,tip:'High atten: turns the highs down above the chosen frequency, up to -16 dB. Good for taming harshness and hiss.',val:v=>`<b>${v.toFixed(1)}</b><br>${DBR.hiA(v)}`},
+ {id:'tube',grp:'out',lab:'Tube',max:10,def:0,tip:'Tube stage warmth: adds soft, tube-like colour and gentle peak rounding. 0 is clean and bit-exact. Preview only uses a simple model.',val:v=>`<b>${v.toFixed(1)}</b><br>${TUBEWORD(v)}`},
+ {id:'out',grp:'out',lab:'Output',max:10,def:5,tip:'Output level after the equalizer. 5 is 0 dB, range -12 to +12 dB. Boosting makes things sound better just because they are louder, so match levels when you compare.',val:v=>{const d=(v-5)*2.4;return `<b>${v.toFixed(1)}</b><br>${d>=0?'+':''}${d.toFixed(1)} dB`}}
+];
+const TRY={lowF:'Try: 60 Hz for kick and bass, 30 Hz for sub.',lowB:'Try: Boost and Atten together on the same low frequency, the famous low end trick, for a fat bump without mud.',lowA:'Try: raise Boost on the same frequency too, the famous low end trick, so the bass gets big and the mud above it gets cleaned.',hiF:'Try: 3 or 4 kHz for punch, 10 to 16 kHz for air.',hiB:'Try: small amounts, 2 to 4, for air on vocals and cymbals.',bw:'Try: wide (7 to 10) for a smooth lift, narrow (0 to 3) to pick out one spot.',attF:'Try: 5 kHz to calm harshness, 20 kHz for a gentle top trim.',hiA:'Try: 1 to 3 to soften a bright source or hide hiss.',tube:'Try: 2 to 4 to add warmth to a clean sound.',out:'Try: match the level with Bypass on and off before judging.'};
+KN.forEach(k=>{if(TRY[k.id])k.tip+=' '+TRY[k.id]});
+const GRPS=[['low','Low section','M2 12 H22 M6 12 V4 M12 12 V8'],['hib','High boost'],['hia','High atten'],['out','Tube stage']];
+function knobSVG(k){const stepped=!!k.steps;let s='<svg viewBox="0 0 100 100" width="90" height="90"><defs><radialGradient id="kg'+k.id+'" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#f1f1f4"/><stop offset=".55" stop-color="#b9bac2"/><stop offset="1" stop-color="#6e6f78"/></radialGradient></defs>';
+ const n=stepped?k.steps.length:10,span=stepped?270:270;
+ if(!stepped){for(let i=0;i<=20;i++){const a=(-135+i*13.5)*Math.PI/180,mj=i%2===0,r1=mj?31:33,r2=36;s+=`<line x1="${50+Math.sin(a)*r1}" y1="${50-Math.cos(a)*r1}" x2="${50+Math.sin(a)*r2}" y2="${50-Math.cos(a)*r2}" stroke="${mj?'#f4f5f7':'#8c8f99'}" stroke-width="${mj?1.5:.9}"/>`}
+  for(let i=0;i<=10;i+=2){const a=(-135+i*27)*Math.PI/180;s+=`<text x="${50+Math.sin(a)*43}" y="${50-Math.cos(a)*43+3.4}" text-anchor="middle" font-size="10" fill="#c9cbd3" font-family="Barlow Condensed,Arial Narrow,Arial,sans-serif" font-weight="600">${i}</text>`}}
+ else{for(let i=0;i<n;i++){const a=(-135+i*span/(n-1))*Math.PI/180;s+=`<line x1="${50+Math.sin(a)*31}" y1="${50-Math.cos(a)*31}" x2="${50+Math.sin(a)*36}" y2="${50-Math.cos(a)*36}" stroke="#f4f5f7" stroke-width="1.5"/><text class="clk" data-i="${i}" x="${50+Math.sin(a)*43}" y="${50-Math.cos(a)*43+3.4}" text-anchor="middle" font-size="10" fill="#c9cbd3" font-family="Barlow Condensed,Arial Narrow,Arial,sans-serif" font-weight="600" style="cursor:pointer" tabindex="0" aria-label="${k.steps[i]}">${k.steps[i]}</text>`}}
+ s+='<circle cx="50" cy="50" r="27" fill="#0b0b0d" stroke="#000"/><circle cx="50" cy="50" r="25.5" fill="none" stroke="#3a3c43" stroke-width="2" stroke-dasharray="1.2 1.4"/><g class="rot"><circle cx="50" cy="50" r="22" fill="url(#kg'+k.id+')" stroke="#4a4b53"/><circle cx="50" cy="50" r="19" fill="none" stroke="rgba(0,0,0,.25)"/><line x1="50" y1="50" x2="50" y2="33" stroke="#16171a" stroke-width="3" stroke-linecap="round"/></g></svg>';return s}
+const knobRefs={},knobsEl=$('#knobs');
+GRPS.forEach(g=>{const gd=el('div','grp');gd.dataset.tip={low:'Low section: boost and atten share one frequency.',hib:'High boost: a bell you can make narrow or wide.',hia:'High atten: turns the highs down above a corner frequency.',out:'Tube stage and output level.'}[g[0]];
+ gd.innerHTML='<div class="gt">'+g[1]+'</div>';
+ KN.filter(k=>k.grp===g[0]).forEach(k=>{const c=el('div','kcell');c.innerHTML='<div class="lab">'+k.lab+'</div>';const kn=el('div','knob',knobSVG(k));kn.tabIndex=0;kn.setAttribute('role','slider');kn.setAttribute('aria-label',(g[1]+' '+k.lab));
+  kn.setAttribute('aria-valuemin',0);kn.setAttribute('aria-valuemax',k.steps?k.steps.length-1:10);kn.dataset.tip=k.tip;c.appendChild(kn);const kv=el('div','kval');c.appendChild(kv);gd.appendChild(c);knobRefs[k.id]={kn,kv,rot:kn.querySelector('.rot'),k};
+  const setv=v=>{if(k.steps)v=Math.max(0,Math.min(k.steps.length-1,Math.round(v)));else v=Math.max(0,Math.min(10,Math.round(v*10)/10));st[k.id]=v;syncUI()};
+  let drag=null;kn.addEventListener('pointerdown',e=>{if(e.target.classList&&e.target.classList.contains('clk')){setv(+e.target.dataset.i);return}kn.setPointerCapture(e.pointerId);drag={y:e.clientY,v:st[k.id]};e.preventDefault()});
+  kn.addEventListener('pointermove',e=>{if(!drag)return;const sc=curScale(),dy=(drag.y-e.clientY)/sc;if(k.steps)setv(drag.v+dy/22);else setv(drag.v+dy/(e.shiftKey?1000:150)*10)});
+  kn.addEventListener('pointerup',()=>drag=null);kn.addEventListener('pointercancel',()=>drag=null);
+  kn.addEventListener('wheel',e=>{e.preventDefault();const d=e.deltaY<0?1:-1;setv(k.steps?st[k.id]+d:st[k.id]+d*(e.shiftKey?.1:.5))},{passive:false});
+  kn.addEventListener('keydown',e=>{const d={ArrowUp:1,ArrowRight:1,ArrowDown:-1,ArrowLeft:-1}[e.key];if(d){e.preventDefault();setv(k.steps?st[k.id]+d:st[k.id]+d*(e.shiftKey?.1:.5))}});
+  kn.addEventListener('dblclick',()=>setv(k.def));
+  kn.querySelectorAll('.clk').forEach(t=>t.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();e.stopPropagation();setv(+t.dataset.i)}}));
+ });knobsEl.appendChild(gd)});
+/* group glyph: small tube outline in the titles */
+$$('.grp .gt').forEach(t=>{t.insertAdjacentHTML('afterbegin','<svg width="11" height="13" viewBox="0 0 11 13"><path d="M2 12 V6 Q2 1 5.5 1 Q9 1 9 6 V12 Z" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M4 12 V8 M7 12 V8" stroke="currentColor" stroke-width="1"/></svg>')});
+function syncUI(){for(const id in knobRefs){const r=knobRefs[id],k=r.k,v=st[id];const ang=k.steps?-135+v*270/(k.steps.length-1):-135+v*27;r.rot.setAttribute('transform','rotate('+ang+' 50 50)');r.kv.innerHTML=k.val(v);
+  r.kn.setAttribute('aria-valuenow',v);r.kn.setAttribute('aria-valuetext',k.steps?k.steps[v]:String(v))}
+ $('#bBypass').classList.toggle('on',!!st.bypass);$('#bBypass').setAttribute('aria-pressed',!!st.bypass);
+ proc.update();updName();need=true}
+/* ============ Wood (same three colours and vertical grain as the PurrOne wood) ============ */
+function mul32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function drawWood(cv,seed,edgeRight){const w=cv.width=104,h=cv.height=1280,g=cv.getContext('2d'),r=mul32(seed);
+ g.fillStyle='#3d2210';g.fillRect(0,0,w,h);
+ for(let x=0;x<w;x++){const a=r();g.fillStyle='rgba(123,74,38,'+(.40*(.4+.6*a))+')';g.fillRect(x,0,1,h);
+  if(r()<.35){g.fillStyle='rgba(90,52,25,'+(.75*r())+')';const y0=r()*h;g.fillRect(x,y0,1,h*(.2+.6*r()))}
+  if(r()<.12){g.fillStyle='rgba(0,0,0,.35)';g.fillRect(x,0,1,h)}}
+ g.fillStyle='#000';g.fillRect(edgeRight?0:w-3,0,3,h)}
+drawWood($('#cheekL canvas'),11,true);drawWood($('#cheekR canvas'),29,false);
+/* ============ Displays ============ */
+function tokens(){const c=getComputedStyle(app),g=n=>c.getPropertyValue(n).trim();return{disp:g('--disp'),line:g('--line'),dim:g('--dim'),acc:g('--accent'),ink:g('--ink'),title:g('--title'),g:g('--g'),y:g('--y'),b:g('--b'),pink:'#FF7BB1'}}
+let T=tokens();
+function ctxOf(cv,w,h){const k=Math.max(1,Math.ceil(curScale()*(window.devicePixelRatio||1)*10)/10);const bw=Math.round(w*k),bh=Math.round(h*k);if(cv.width!==bw||cv.height!==bh){cv.width=bw;cv.height=bh}
+ const g=cv.getContext('2d');g.setTransform(k,0,0,k,0,0);g.clearRect(0,0,w,h);return g}
+const FONT='11px "JetBrains Mono",Consolas,monospace';
+
+const NN=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+function noteOf(f){const n=69+12*Math.log2(f/440),r=Math.round(n),c=Math.round((n-r)*100);return NN[((r%12)+12)%12]+(Math.floor(r/12)-1)+' '+(c>=0?'+':'')+c+'c'}
+function noteName(f){const r=Math.round(69+12*Math.log2(f/440));return NN[((r%12)+12)%12]+(Math.floor(r/12)-1)}
+function fmtHz(f){return f>=1000?(f/1000).toFixed(2)+' kHz':(f<100?f.toFixed(1):Math.round(f))+' Hz'}
+function fmtHzS(f){return f>=1000?(f/1000).toFixed(1)+'k':String(Math.round(f))}
+function specAt(f){const x=(Math.log10(f)-Math.log10(20))/3*(SPW-1),i=Math.max(0,Math.min(SPW-2,Math.floor(x))),t=Math.max(0,Math.min(1,x-i));return spOut[i]+(spOut[i+1]-spOut[i])*t}
+function readout(g,x,xl,xr,top,bot,f){g.strokeStyle=T.ink;g.globalAlpha=.55;g.lineWidth=1;g.beginPath();g.moveTo(x,top);g.lineTo(x,bot);g.stroke();g.globalAlpha=1;
+ const e=totalDb(f),sp=specAt(f),l1=fmtHz(f)+'  '+noteOf(f),l2='EQ '+(e>=0?'+':'')+e.toFixed(1)+' dB  spec '+(sp<-89?'-inf':sp.toFixed(0))+' dB';
+ g.font=FONT;const tw=Math.max(g.measureText(l1).width,g.measureText(l2).width)+12,tx=x+8+tw>xr?x-8-tw:x+8;
+ g.fillStyle='#000';g.fillRect(tx,top+4,tw,32);g.strokeStyle=T.acc;g.lineWidth=1;g.strokeRect(tx+.5,top+4.5,tw-1,31);g.fillStyle=T.ink;g.textAlign='left';g.textBaseline='middle';g.fillText(l1,tx+6,top+13);g.fillText(l2,tx+6,top+28)}
+let pkLab=[],pkTick=0;
+function trackPeaks(){pkTick++;if(pkTick%6)return;const c=[];let mx=-999;for(let x=3;x<SPW-3;x++){const v=spOut[x];if(v>mx)mx=v;let ok=v>-62;for(let k=-3;k<=3&&ok;k++)if(k&&spOut[x+k]>v)ok=false;if(ok)c.push({x,v})}
+ pkLab.forEach(p=>p.seen=false);c.sort((a,b)=>b.v-a.v);const top=c.slice(0,4);
+ top.forEach(cd=>{const m=pkLab.find(p=>Math.abs(p.x-cd.x)<=4);if(m){m.x=cd.x;m.v=cd.v;m.seen=true;m.miss=0}else{if(pkLab.length<4)pkLab.push({x:cd.x,v:cd.v,seen:true,miss:0});else{const w=pkLab.reduce((a,b)=>a.v<b.v?a:b);if(cd.v>w.v+6){Object.assign(w,{x:cd.x,v:cd.v,seen:true,miss:0})}}}});
+ pkLab.forEach(p=>{if(!p.seen)p.miss++});pkLab=pkLab.filter(p=>p.miss<12);if(mx<-58)pkLab=[]}
+function drawPeakLabels(g){if(!pkLab.length)return;const N=S.W-S.ML-S.MR,boxes=[];g.font='10px "JetBrains Mono",Consolas,monospace';g.textBaseline='middle';
+ pkLab.slice().sort((a,b)=>a.x-b.x).forEach(p=>{const f=Math.pow(10,Math.log10(20)+p.x/(SPW-1)*3),t=noteName(f)+' '+fmtHzS(f),w=g.measureText(t).width+6,px=S.ML+p.x*N/(SPW-1),py=sy(Math.max(S.LO,Math.min(0,p.v)));
+  let bx=Math.max(S.ML+2,Math.min(S.W-S.MR-w-1,px-w/2)),by=Math.max(S.MT+2,py-18);
+  if(boxes.some(b=>bx<b[0]+b[2]+2&&b[0]<bx+w+2&&by<b[1]+b[3]&&b[1]<by+12))return;boxes.push([bx,by,w,12]);
+  g.fillStyle='rgba(0,0,0,.72)';g.fillRect(bx,by,w,12);g.fillStyle=T.ink;g.textAlign='left';g.fillText(t,bx+3,by+6.5);g.strokeStyle=T.acc;g.lineWidth=1;g.beginPath();g.moveTo(px,by+12);g.lineTo(px,py-2);g.stroke()})}
+let spHover=null;
+/* response display */
+const R={W:630,H:290,ML:40,MR:12,MT:10,MB:22,DB:20};
+const rx=f=>R.ML+(Math.log10(f)-Math.log10(20))/3*(R.W-R.ML-R.MR);
+const ry=d=>R.MT+(R.DB-d)/(2*R.DB)*(R.H-R.MT-R.MB);
+const rf=x=>Math.pow(10,Math.log10(20)+(x-R.ML)/(R.W-R.ML-R.MR)*3);
+const SECCOL=()=>({lowB:T.g,lowA:T.pink,hiB:T.y,hiA:T.b});
+let hover=null,dragH=null;
+function handles(){return KEYS.map(k=>{const f=markerF(k);return{k,f,x:rx(f),y:ry(Math.max(-R.DB,Math.min(R.DB,magDb(coefOf(k),f))))}})}
+function drawResp(){const cv=$('#cvResp'),g=ctxOf(cv,R.W,R.H);g.font=FONT;
+ for(let d=-R.DB;d<=R.DB;d+=5){const y=ry(d);g.strokeStyle=d===0?T.dim:T.line;g.lineWidth=d===0?1:.6;g.globalAlpha=d===0?.9:.7;g.beginPath();g.moveTo(R.ML,y);g.lineTo(R.W-R.MR,y);g.stroke();g.globalAlpha=1;
+  if(d%10===0){g.fillStyle=T.title;g.textAlign='right';g.textBaseline='middle';g.fillText((d>0?'+':'')+d,R.ML-6,y)}}
+ const fl=[20,50,100,200,500,1000,2000,5000,10000,20000],lt=['20','50','100','200','500','1k','2k','5k','10k','20k'];
+ fl.forEach((f,i)=>{const x=rx(f);g.strokeStyle=T.line;g.lineWidth=.6;g.beginPath();g.moveTo(x,R.MT);g.lineTo(x,R.H-R.MB);g.stroke();g.fillStyle=T.title;g.textBaseline='top';g.textAlign=i===0?'left':i===fl.length-1?'right':'center';g.fillText(lt[i],i===0?x-2:i===fl.length-1?x+2:x,R.H-R.MB+6)});
+ const N=R.W-R.ML-R.MR,cs=KEYS.map(k=>coefOf(k)),cl=SECCOL();
+ g.save();g.beginPath();g.rect(R.ML,R.MT,N,R.H-R.MT-R.MB);g.clip();
+ cs.forEach((c,i)=>{g.strokeStyle=cl[KEYS[i]];g.globalAlpha=.75;g.lineWidth=1.2;g.beginPath();for(let x=0;x<=N;x+=2){const f=rf(R.ML+x),y=ry(magDb(c,f));x?g.lineTo(R.ML+x,y):g.moveTo(R.ML+x,y)}g.stroke()});g.globalAlpha=1;
+ const pts=[];for(let x=0;x<=N;x+=2){const f=rf(R.ML+x);let t=0;for(const c of cs)t+=magDb(c,f);pts.push([R.ML+x,ry(t),t])}
+ g.beginPath();pts.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.lineTo(R.ML+N,ry(0));g.lineTo(R.ML,ry(0));g.closePath();g.fillStyle=T.acc;g.globalAlpha=.16;g.fill();g.globalAlpha=1;
+ g.beginPath();pts.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.strokeStyle=T.ink;g.lineWidth=2.6;g.lineJoin='round';g.stroke();g.restore();
+ if(st.bypass){g.fillStyle=T.ink;g.globalAlpha=.8;g.textAlign='center';g.textBaseline='middle';g.font='600 14px "Barlow Condensed",Arial';g.fillText('BYPASSED, the sound is dry',R.ML+N/2,R.MT+16);g.globalAlpha=1;g.font=FONT}
+ handles().forEach(h=>{const act=dragH&&dragH.k===h.k;g.beginPath();g.arc(h.x,h.y,act?7:5.5,0,6.283);g.fillStyle=cl[h.k];g.fill();g.lineWidth=1.5;g.strokeStyle='#000';g.stroke()});
+ if(hover&&hover.x>=R.ML&&hover.x<=R.W-R.MR)readout(g,hover.x,R.ML,R.W-R.MR,R.MT,R.H-R.MB,rf(hover.x))}
+/* spectrum display */
+const S={W:346,H:290,ML:38,MR:10,MT:10,MB:22,LO:-90};
+const sy=d=>S.MT+(0-d)/(0-S.LO)*(S.H-S.MT-S.MB);
+function drawSpec(){const cv=$('#cvSpec'),g=ctxOf(cv,S.W,S.H);g.font=FONT;const N=S.W-S.ML-S.MR;
+ for(let d=0;d>=S.LO;d-=10){const y=sy(d);g.strokeStyle=T.line;g.lineWidth=.6;g.beginPath();g.moveTo(S.ML,y);g.lineTo(S.W-S.MR,y);g.stroke();if(d%20===0){g.fillStyle=T.title;g.textAlign='right';g.textBaseline='middle';g.fillText(String(d),S.ML-6,y)}}
+ const fl=[20,100,1000,10000],lt=['20','100','1k','10k'],sx=f=>S.ML+(Math.log10(f)-Math.log10(20))/3*N;
+ fl.forEach((f,i)=>{const x=sx(f);g.strokeStyle=T.line;g.lineWidth=.6;g.beginPath();g.moveTo(x,S.MT);g.lineTo(x,S.H-S.MB);g.stroke();g.fillStyle=T.title;g.textBaseline='top';g.textAlign=i===0?'left':'center';g.fillText(lt[i],i===0?x-2:x,S.H-S.MB+6)});
+ g.save();g.beginPath();g.rect(S.ML,S.MT,N,S.H-S.MT-S.MB);g.clip();
+ const path=(a,close)=>{g.beginPath();for(let x=0;x<SPW;x++){const px=S.ML+x*N/(SPW-1),py=sy(Math.max(S.LO,Math.min(0,a[x])));x?g.lineTo(px,py):g.moveTo(px,py)}if(close){g.lineTo(S.ML+N,S.H-S.MB);g.lineTo(S.ML,S.H-S.MB);g.closePath()}};
+ path(spOut,true);g.fillStyle=T.acc;g.globalAlpha=.28;g.fill();g.globalAlpha=1;path(spOut,false);g.strokeStyle=T.acc;g.lineWidth=1.4;g.stroke();
+ path(spIn,false);g.strokeStyle=T.dim;g.lineWidth=1.2;g.stroke();g.restore();
+ drawPeakLabels(g);if(spHover&&spHover.x>=S.ML&&spHover.x<=S.W-S.MR)readout(g,spHover.x,S.ML,S.W-S.MR,S.MT,S.H-S.MB,Math.pow(10,Math.log10(20)+(spHover.x-S.ML)/N*3))}
+/* meters: blue safe, purple warning (-12 to 0), pink clip (0 and above), colours fixed at their dB positions */
+const M={H:300,T:8,B:6,LO:-60,HI:6},my=d=>M.T+(M.HI-d)/(M.HI-M.LO)*(M.H-M.T-M.B);
+let clipIn=0,clipOut=0,holdIn=-99,holdOut=-99,holdTI=0,holdTO=0;
+const toDb=x=>20*Math.log10(Math.max(x,1e-6));
+function zoneCol(d){return d>=0?'#FF1383':d>=-12?'#A43DFF':'#6CC9F5'}
+function drawMeters(now){const cv=$('#cvMet'),g=ctxOf(cv,84,M.H);g.font='10px "JetBrains Mono",Consolas,monospace';
+ const levels=[toDb(proc.inPk),toDb(proc.outPk)],xs=[13,55];
+ [[-60,-12,'#6CC9F5'],[-12,0,'#A43DFF'],[0,6,'#FF1383']].forEach(z=>{});
+ levels.forEach((lv,i)=>{const x=xs[i];g.fillStyle=T.disp;g.fillRect(x,M.T,16,M.H-M.T-M.B);
+  [[-60,-12,'#6CC9F5'],[-12,0,'#A43DFF'],[0,6,'#FF1383']].forEach(z=>{const a=Math.max(z[0],M.LO),b=Math.min(z[1],lv,M.HI);if(b>a){g.fillStyle=z[2];g.fillRect(x,my(b),16,my(a)-my(b))}});
+  if(lv>=-0.05){if(i)clipOut=now;else clipIn=now}
+  const hv=i?holdOut:holdIn;
+  if(lv>hv||now-(i?holdTO:holdTI)>1200){if(i){holdOut=lv;holdTO=now}else{holdIn=lv;holdTI=now}}
+  const hh=i?holdOut:holdIn;if(hh>M.LO){g.fillStyle=zoneCol(hh);g.fillRect(x,my(Math.min(hh,M.HI))-1,16,2)}
+  const cl=i?clipOut:clipIn;g.fillStyle=cl&&now-cl<4000?'#FF1383':'#2a2c33';g.fillRect(x,M.T-5,16,3)});
+ [6,0,-6,-12,-18,-24,-36,-48,-60].forEach(d=>{const y=my(d);g.strokeStyle=T.dim;g.lineWidth=1;g.globalAlpha=.7;[[xs[0]+16,xs[0]+19],[xs[1]-3,xs[1]]].forEach(s=>{g.beginPath();g.moveTo(s[0],y);g.lineTo(s[1],y);g.stroke()});g.globalAlpha=1;
+  g.fillStyle=T.title;g.textAlign='center';g.textBaseline='middle';g.fillText(d>0?'+'+d:String(d),42,y)});
+ const pi=toDb(proc.inPk),po=toDb(proc.outPk),mx=(id,d)=>{const e=$(id);e.textContent=d<-80?'-inf':d.toFixed(1);e.style.color=zoneCol(d)};mx('#pkIn',holdIn);mx('#pkOut',holdOut)}
+$('#cvMet').addEventListener('click',()=>{clipIn=clipOut=0;holdIn=holdOut=-99;toast('Clip lights cleared')});
+const spEl=$('#cvSpec');
+function spPos(e){const r=spEl.getBoundingClientRect();return{x:(e.clientX-r.left)*S.W/r.width,y:(e.clientY-r.top)*S.H/r.height}}
+spEl.addEventListener('pointermove',e=>{spHover=spPos(e);need=true});spEl.addEventListener('pointerleave',()=>{spHover=null;need=true});
+spEl.style.cursor='crosshair';
+/* ============ Response display interaction ============ */
+function respPos(e){const cv=$('#cvResp'),r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)*R.W/r.width,y:(e.clientY-r.top)*R.H/r.height}}
+function dbPerDial(k){const s=Object.assign({},st);s[{lowB:'lowB',lowA:'lowA',hiB:'hiB',hiA:'hiA'}[k]]=10;return magDb(coefOf(k,s),markerF(k))/10}
+const FREQKEY={lowB:'lowF',lowA:'lowF',hiB:'hiF',hiA:'attF'},DIALKEY={lowB:'lowB',lowA:'lowA',hiB:'hiB',hiA:'hiA'},FLIST={lowF:LOWF,hiF:HIF,attF:ATTF};
+const respEl=$('#cvResp');
+respEl.addEventListener('pointerdown',e=>{const p=respPos(e),hs=handles().map(h=>Object.assign(h,{d:Math.hypot(h.x-p.x,h.y-p.y)})).filter(h=>h.d<16).sort((a,b)=>a.d-b.d);if(!hs.length)return;
+ respEl.setPointerCapture(e.pointerId);const amb=hs.length>1&&Math.abs(hs[0].d-hs[1].d)<3&&hs[0].k.startsWith('low')&&hs[1].k.startsWith('low');
+ dragH={k:hs[0].k,amb,y0:p.y,v0:st[DIALKEY[hs[0].k]],moved:false,v0b:amb?st[DIALKEY[hs[1].k]]:0};e.preventDefault()});
+respEl.addEventListener('pointermove',e=>{const p=respPos(e);hover=p;
+ if(dragH){const dy=p.y-dragH.y0;if(dragH.amb&&!dragH.moved&&Math.abs(dy)>3){dragH.k=dy<0?'lowB':'lowA';dragH.v0=st[DIALKEY[dragH.k]];dragH.moved=true}
+  const pxDb=(R.H-R.MT-R.MB)/(2*R.DB),per=dbPerDial(dragH.k)||(dragH.k.endsWith('B')?1:-1),ddb=-dy/pxDb;st[DIALKEY[dragH.k]]=Math.max(0,Math.min(10,Math.round((dragH.v0+ddb/per)*10)/10));
+  const fk=FREQKEY[dragH.k],fl=FLIST[fk];let bi=st[fk],bd=1e9;fl.forEach((f,i)=>{const d=Math.abs(rx(f)-p.x);if(d<bd){bd=d;bi=i}});if(Math.abs(p.x-rx(markerF(dragH.k)))>14)st[fk]=bi;
+  syncUI()}
+ else{const near=handles().some(h=>Math.hypot(h.x-p.x,h.y-p.y)<16);respEl.style.cursor=near?'grab':'crosshair';need=true}});
+respEl.addEventListener('pointerup',()=>{dragH=null;need=true});respEl.addEventListener('pointercancel',()=>{dragH=null});
+respEl.addEventListener('pointerleave',()=>{hover=null;need=true});
+respEl.addEventListener('dblclick',e=>{const p=respPos(e),h=handles().find(h=>Math.hypot(h.x-p.x,h.y-p.y)<16);if(h){st[DIALKEY[h.k]]=0;syncUI()}});
+/* ============ Presets ============ */
+const TYPES=['Start','Drums','Bass','Vocal','Mix','Synth','Master'];
+const F=(name,type,tags,p)=>({name,type,tags,p:Object.assign({},DEF,p),factory:true});
+const FACTORY=[
+ F('Start Here','Start',['start','general'],{lowF:2,lowB:3,lowA:1.5,hiF:4,hiB:2,bw:5,attF:2,hiA:0,tube:2}),
+ F('Flat With Tubes','Start',['clean','colour'],{tube:3}),
+ F('Low Trick 60','Mix',['trick','low end'],{lowF:2,lowB:6.5,lowA:4,tube:1}),
+ F('Low Trick 30','Bass',['trick','sub'],{lowF:1,lowB:7,lowA:4,tube:1}),
+ F('Kick Weight','Drums',['kick'],{lowF:2,lowB:5,lowA:2,hiF:1,hiB:3,bw:1,tube:2}),
+ F('Hard Dance Kick','Drums',['kick','hard dance'],{lowF:2,lowB:6,lowA:3,hiF:0,hiB:4,bw:0,attF:1,hiA:1,tube:4}),
+ F('Bass Body','Bass',['body'],{lowF:2,lowB:4,lowA:1,hiF:1,hiB:2,bw:2,tube:2}),
+ F('Sub Clean','Bass',['sub','clean'],{lowF:0,lowB:4.5,lowA:3,attF:1,hiA:2,tube:1}),
+ F('Vocal Air','Vocal',['air','bright'],{lowF:3,lowB:3,lowA:2,hiF:5,hiB:3.5,bw:8,attF:0,hiA:1,tube:2}),
+ F('Silky Top','Master',['smooth','air'],{hiF:6,hiB:4,bw:10,tube:1}),
+ F('Mix Bus Glue','Mix',['bus','gentle'],{lowF:2,lowB:2,lowA:1.5,hiF:1,hiB:1.5,bw:10,attF:2,hiA:1,tube:2}),
+ F('Overhead Sheen','Drums',['cymbals','air'],{lowF:3,lowB:0,lowA:3,hiF:4,hiB:4.5,bw:7,attF:0,hiA:1}),
+ F('Mud Cleaner','Mix',['cut','clean'],{lowF:3,lowA:5,tube:1}),
+ F('Presence Push','Synth',['lead','presence'],{hiF:2,hiB:5,bw:3,tube:2}),
+ F('Warm Roll Off','Synth',['warm','dark'],{lowF:3,lowB:3,attF:0,hiA:5,tube:3}),
+ F('Smooth Highs','Master',['tame','smooth'],{hiF:5,hiB:1,bw:9,attF:1,hiA:4})
+];
+const LIM={lowF:[0,3,1],lowB:[0,10],lowA:[0,10],hiF:[0,6,1],hiB:[0,10],bw:[0,10],attF:[0,2,1],hiA:[0,10],tube:[0,10],out:[0,10]};
+function validPreset(o){if(!o||typeof o!=='object'||typeof o.name!=='string'||!o.name||o.name.length>60||!o.p||typeof o.p!=='object')return false;
+ for(const k in o.p){if(!(k in LIM))continue;const v=o.p[k],l=LIM[k];if(typeof v!=='number'||!isFinite(v)||v<l[0]||v>l[1]||(l[2]&&v!==Math.round(v)))return false}return true}
+function normPreset(o){const p=Object.assign({},DEF);for(const k in DEF)if(typeof o.p[k]==='number')p[k]=o.p[k];
+ return{name:String(o.name).slice(0,60),type:TYPES.includes(o.type)?o.type:'Mix',tags:Array.isArray(o.tags)?o.tags.filter(t=>typeof t==='string').slice(0,8).map(t=>t.slice(0,20)):[],p,factory:false}}
+let user=[];try{user=JSON.parse(localStorage.getItem('pawltec-presets')||'[]').filter(validPreset).map(normPreset)}catch(e){user=[]}
+function saveUser(){try{localStorage.setItem('pawltec-presets',JSON.stringify(user))}catch(e){}}
+const allPresets=()=>FACTORY.concat(user);
+let curName='Start Here';
+function curPreset(){return allPresets().find(x=>x.name===curName)||FACTORY[0]}
+function isDirty(){const p=curPreset();for(const k in DEF)if(Math.abs((p.p[k]||0)-st[k])>1e-6)return true;return false}
+function updName(){const e=$('#pName');if(e)e.textContent=curName+(isDirty()?' *':'')}
+function loadPreset(p){Object.assign(st,DEF,p.p);curName=p.name;proc.snapNext=false;syncUI();toast('Loaded '+p.name)}
+function stepPreset(d){const l=allPresets(),i=l.findIndex(x=>x.name===curName);loadPreset(l[(i+d+l.length)%l.length])}
+$('#pPrev').onclick=()=>stepPreset(-1);$('#pNext').onclick=()=>stepPreset(1);
+/* ============ Dialogs ============ */
+const modal=$('#modal');
+function btn(t,f,c){const b=el('button','btn'+(c?' '+c:''),esc(t));b.onclick=f;return b}
+function openModal(title,body,foot,wide){modal.innerHTML='';modal.hidden=false;const d=el('div','dlg');if(wide)d.style.width=wide;const h=el('h2','',esc(title));const x=el('button','btn','Close');x.onclick=closeModal;h.appendChild(x);
+ d.appendChild(h);const b=el('div','dbody');if(typeof body==='string')b.innerHTML=body;else b.appendChild(body);d.appendChild(b);if(foot){const f=el('div','dfoot');foot.forEach(a=>f.appendChild(a));d.appendChild(f)}modal.appendChild(d);return b}
+function closeModal(){modal.hidden=true;modal.innerHTML=''}
+modal.addEventListener('pointerdown',e=>{if(e.target===modal)closeModal()});
+const settings={tips:true,power:false,look:'C'};try{Object.assign(settings,JSON.parse(localStorage.getItem('pawltec-settings')||'{}'))}catch(e){}
+if(!['A','B','C'].includes(settings.look))settings.look='C';
+function applySettings(){app.dataset.look=settings.look;T=tokens();need=true;try{localStorage.setItem('pawltec-settings',JSON.stringify(settings))}catch(e){}}
+$('#bSettings').onclick=()=>{const b=openModal('Settings','<label><input type="checkbox" id="sTips"> Info bubbles after hovering for about one second</label><label><input type="checkbox" id="sPow"> Power saving (redraw at 16 frames per second)</label><label>Colour look <select id="sLook"><option value="C">Look C, charcoal and white (default)</option><option value="A">Look A, neon navy</option><option value="B">Look B, purple soda pop</option></select></label><p style="color:var(--dim)">The look is saved with the plugin settings, not with each preset. Wood, cat logo, meter colours and dB scales stay the same in all three.</p><p><button class="btn" id="sReset">Reset window to 100%</button></p>',null);
+ b.querySelector('#sTips').checked=settings.tips;b.querySelector('#sPow').checked=settings.power;b.querySelector('#sLook').value=settings.look;
+ b.querySelector('#sTips').onchange=e=>{settings.tips=e.target.checked;applySettings()};b.querySelector('#sPow').onchange=e=>{settings.power=e.target.checked;applySettings()};
+ b.querySelector('#sLook').onchange=e=>{settings.look=e.target.value;applySettings()};b.querySelector('#sReset').onclick=()=>{setScale(s0);toast('Window reset to 100%')}};
+$('#bGuide').onclick=()=>openModal('Guide',`<p><b>Signal flow:</b> Input, then the passive equalizer network (low boost, low atten, high boost with bandwidth, high atten), then the tube stage that makes the level back up, then Output.</p>
+<p><b>The low trick:</b> set Boost and Atten on the same low frequency. You get a fat bump at the bottom and a clean dip just above it, so the bass is bigger without getting muddy. Try the preset Low Trick 60.</p>
+<p><b>Drag the curve:</b> the round handles on the response display are the knobs. Drag up or down to change the amount, sideways to pick another frequency, double-click a handle to zero it.</p>
+<table><tr><td><kbd>Space</kbd></td><td>Start or stop the preview</td></tr><tr><td><kbd>B</kbd></td><td>Bypass on or off, to compare with the dry sound</td></tr><tr><td><kbd>[</kbd> / <kbd>]</kbd></td><td>Previous or next preset</td></tr><tr><td>Knob: drag, wheel, arrows</td><td>Hold <kbd>Shift</kbd> for fine steps, double-click to reset</td></tr><tr><td>Wood cheeks</td><td>Double-click to reset the window to 100%</td></tr></table>`,null);
+$('#bAbout').onclick=()=>openModal('About & Support',`<p><b>Pawltec</b> by Studio 87, version 0.1 (design mockup). Free and open source, licence AGPL-3.0-or-later. Collects nothing and never uses the network.</p>
+<p>A free open source equalizer inspired by classic hardware and written from public manuals.</p>
+<p><b>Your presets are saved here:</b><br>Linux <kbd>~/.local/share/Studio 87/Pawltec/presets</kbd><br>Windows <kbd>%APPDATA%\\Studio 87\\Pawltec\\presets</kbd><br>macOS <kbd>~/Library/Application Support/Studio 87/Pawltec/presets</kbd></p>
+<p><b>Install and uninstall:</b> the installer puts the VST3 in the standard folder for your system. The uninstaller removes everything it installed and asks before touching your presets (it keeps them by default).</p>
+<p style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn" href="https://github.com/SpeakingColors/Pawltec" target="_blank" rel="noopener">GitHub</a><a class="btn" href="https://github.com/SpeakingColors/Pawltec/releases" target="_blank" rel="noopener">Releases</a><a class="btn" href="https://ko-fi.com/studio87" target="_blank" rel="noopener">Ko-fi studio87</a></p>
+<p style="color:var(--dim)">Support is entirely optional. Nothing is locked.</p>`,null);
+/* preset browser */
+let pbSel=null,pbType='All',pbQ='',pbPage=0;
+function openBrowser(){pbSel=pbSel||curName;const wrap=el('div','');wrap.innerHTML='<div class="pb"><div style="display:flex;flex-direction:column;min-height:0"><input id="pbQ" placeholder="Search name, type or tag" style="margin-bottom:6px"><div class="chips" id="pbChips"></div><div class="list" id="pbList" style="flex:1"></div><div id="pbPg" style="display:flex;gap:6px;align-items:center;justify-content:center;margin-top:6px;font-size:13px;color:var(--dim)"></div></div><div id="pbSide"></div></div>';
+ const b=openModal('Presets',wrap,[btn('Import',openImport),btn('Export all',()=>openExport(null)),btn('Save current',()=>{closeModal();openSave()})],'820px');
+ const q=b.querySelector('#pbQ');q.value=pbQ;q.oninput=()=>{pbQ=q.value;pbPage=0;renderList()};
+ function renderList(){const ch=b.querySelector('#pbChips');ch.innerHTML='';['All'].concat(TYPES).forEach(t=>{const c=el('button','chip'+(pbType===t?' on':''),t);c.onclick=()=>{pbType=t;pbPage=0;renderList()};ch.appendChild(c)});
+  const l=b.querySelector('#pbList');l.innerHTML='';const qq=pbQ.toLowerCase();
+  const fl=allPresets().filter(p=>(pbType==='All'||p.type===pbType)&&(!qq||(p.name+' '+p.type+' '+p.tags.join(' ')).toLowerCase().includes(qq))),PS=11,np=Math.max(1,Math.ceil(fl.length/PS));if(pbPage>=np)pbPage=np-1;
+  const pg=b.querySelector('#pbPg');pg.innerHTML='';if(np>1){const a=btn('\u25C0',()=>{pbPage=(pbPage+np-1)%np;renderList()}),c=btn('\u25B6',()=>{pbPage=(pbPage+1)%np;renderList()});a.style.padding='0 8px';c.style.padding='0 8px';pg.appendChild(a);pg.appendChild(el('span','','Page '+(pbPage+1)+' of '+np+' ('+fl.length+' presets)'));pg.appendChild(c)}
+  fl.slice(pbPage*PS,pbPage*PS+PS).forEach(p=>{
+   const it=el('div','item'+(pbSel===p.name?' sel':''),'<span>'+esc(p.name)+'</span><small>'+(p.factory?p.type:'mine &middot; '+p.type)+'</small>');it.onclick=()=>{pbSel=p.name;renderList()};it.ondblclick=()=>{loadPreset(p);closeModal()};l.appendChild(it)});
+  const p=allPresets().find(x=>x.name===pbSel),s=b.querySelector('#pbSide');s.innerHTML='';if(!p)return;
+  s.innerHTML='<h3 style="margin:0 0 4px">'+esc(p.name)+'</h3><div style="color:var(--dim)">'+p.type+(p.tags.length?' &middot; '+p.tags.map(esc).join(', '):'')+(p.factory?' &middot; factory':' &middot; yours')+'</div><p style="color:var(--dim)">Low '+LOWF[p.p.lowF]+' Hz boost '+p.p.lowB+' atten '+p.p.lowA+'<br>High '+fmtF(HIF[p.p.hiF])+' boost '+p.p.hiB+' width '+p.p.bw+'<br>Atten '+fmtF(ATTF[p.p.attF])+' '+p.p.hiA+' &middot; Tube '+p.p.tube+'</p>';
+  const row=el('div',''),mk=(t,f)=>{const x=btn(t,f);x.style.margin='0 6px 6px 0';row.appendChild(x)};
+  mk('Load',()=>{loadPreset(p);closeModal()});mk('Export',()=>openExport(p));
+  if(!p.factory){mk('Rename',()=>openSave(p));mk('Delete',()=>{user=user.filter(x=>x!==p);saveUser();if(curName===p.name)curName='Start Here';pbSel=null;updName();renderList();toast('Deleted')})}
+  s.appendChild(row)}
+ renderList()}
+$('#pName').onclick=openBrowser;
+$('#pName').ondblclick=()=>{const p=curPreset();if(p.factory){toast('Save a copy first, factory presets cannot be renamed');return}openSave(p)};
+function openSave(renaming){const p0=renaming||curPreset(),wrap=el('div','');
+ wrap.innerHTML='<label>Name <input id="svN" maxlength="60" style="width:300px"></label>'+(renaming?'':'<label>Type <select id="svT">'+TYPES.map(t=>'<option>'+t+'</option>').join('')+'</select></label>')+'<div id="svW" class="warn"></div>';
+ const dflt=renaming?p0.name:(p0.factory?p0.name+' copy':p0.name);const foot=[];const b=openModal(renaming?'Rename preset':'Save preset',wrap,foot);
+ const n=b.querySelector('#svN');n.value=dflt;if(!renaming)b.querySelector('#svT').value=p0.type;
+ const f=b.parentNode.querySelector('.dfoot')||(()=>{const d=el('div','dfoot');b.parentNode.appendChild(d);return d})();
+ function commit(name,mode){const typ=renaming?renaming.type:b.querySelector('#svT').value;
+  if(renaming){renaming.name=name;if(curName===p0.name)curName=name}
+  else{const ex=user.find(x=>x.name===name);const base={name,type:typ,tags:[],p:Object.assign({},st),factory:false};delete base.p.bypass;
+   if(ex&&mode==='over'){Object.assign(ex,base)}else{let nn=name,i=2;while(allPresets().some(x=>x.name===nn))nn=name+' '+i++;base.name=nn;user.push(base);curName=nn}
+   if(ex&&mode==='over')curName=name}
+  saveUser();updName();closeModal();toast('Saved '+curName)}
+ function ask(){const name=n.value.trim();if(!name){b.querySelector('#svW').textContent='Type a name first.';return}
+  if(!renaming&&allPresets().some(x=>x.name===name)){const ex=user.find(x=>x.name===name);f.innerHTML='';b.querySelector('#svW').textContent=ex?'A preset with this name already exists.':'Factory presets cannot be overwritten.';
+   if(ex)f.appendChild(btn('Overwrite',()=>commit(name,'over')));f.appendChild(btn('Save as new',()=>commit(name,'new')));f.appendChild(btn('Cancel',closeModal));return}
+  commit(name,'new')}
+ f.appendChild(btn(renaming?'Rename':'Save',ask));f.appendChild(btn('Cancel',closeModal));n.focus();n.select();n.onkeydown=e=>{if(e.key==='Enter')ask()}}
+$('#pSave').onclick=()=>openSave();
+function openExport(p){const list=p?[p]:user.length?user:[];const txt=JSON.stringify({pawltec:1,presets:(p?[p]:user).map(x=>({name:x.name,type:x.type,tags:x.tags,p:x.p}))},null,1);
+ const wrap=el('div','','<p>'+(p?'Copy this text to share the preset.':user.length?'Copy this text to back up your presets.':'You have no presets of your own yet. Factory presets ship with the plugin.')+'</p><textarea id="exT" readonly></textarea>');wrap.querySelector('#exT').value=txt;
+ openModal('Export',wrap,[btn('Copy',()=>{const t=wrap.querySelector('#exT');t.select();try{navigator.clipboard.writeText(t.value).then(()=>toast('Copied'),()=>toast('Press Ctrl+C to copy'))}catch(e){toast('Press Ctrl+C to copy')}})])}
+function openImport(){const body=el('div','','<p>Paste exported preset text here. Unknown settings are ignored and anything invalid is refused.</p><textarea id="imT"></textarea><div id="imW" class="warn"></div>');
+ openModal('Import',body,[btn('Import',()=>{const w=body.querySelector('#imW');try{const o=JSON.parse(body.querySelector('#imT').value);if(!o||o.pawltec!==1||!Array.isArray(o.presets)||o.presets.length>200)throw 0;
+   const ok=o.presets.filter(validPreset);if(!ok.length||ok.length!==o.presets.length)throw 0;
+   ok.forEach(x=>{const n=normPreset(x);let nn=n.name,i=2;while(allPresets().some(y=>y.name===nn))nn=n.name+' '+i++;n.name=nn;user.push(n)});saveUser();closeModal();toast('Imported '+ok.length)}catch(e){w.textContent='Nothing imported: this is not valid Pawltec preset text.'}})])}
+/* ============ Tooltips ============ */
+let tipT=null,tipEl=$('#tip');
+stage.addEventListener('pointerover',e=>{const t=e.target.closest('[data-tip]');clearTimeout(tipT);tipEl.hidden=true;if(!t||!settings.tips||!t.dataset.tip)return;
+ tipT=setTimeout(()=>{const r=t.getBoundingClientRect(),sr=stage.getBoundingClientRect(),sc=curScale();tipEl.textContent=t.dataset.tip;tipEl.hidden=false;
+  let x=(r.left-sr.left)/sc,y=(r.bottom-sr.top)/sc+6;const tw=tipEl.offsetWidth;x=Math.max(60,Math.min(1200-tw-60,x));if(y+tipEl.offsetHeight>636)y=(r.top-sr.top)/sc-tipEl.offsetHeight-6;if(t.id==='cvResp'||t.id==='cvSpec'){y=Math.min(y,(r.top-sr.top)/sc+40)}tipEl.style.left=x+'px';tipEl.style.top=y+'px'},1000)});
+stage.addEventListener('pointerout',e=>{if(!e.relatedTarget||!e.relatedTarget.closest||!e.relatedTarget.closest('[data-tip]')){clearTimeout(tipT);tipEl.hidden=true}});
+stage.addEventListener('pointerdown',()=>{clearTimeout(tipT);tipEl.hidden=true});
+/* ============ Scaling and resize handles ============ */
+const W0=1200,H0=640;let s0=1,sc=1;
+function avail(){return Math.max(160,(app.clientWidth||window.innerWidth-32))}
+function curScale(){return sc}
+function setScale(s){const mx=Math.min(1.5*s0,avail()/W0*1.0);sc=Math.max(0.4*s0,Math.min(Math.max(mx,s0),s));
+ frame.style.width=W0*sc+'px';frame.style.height=H0*sc+'px';stage.style.transform='scale('+sc+')';$('#zPct').textContent=Math.round(sc/s0*100)+'%';$('#winsz').textContent=Math.round(W0*sc)+' × '+Math.round(H0*sc)+' px';need=true}
+function fit(){s0=Math.min(1,avail()/W0);return s0}
+window.addEventListener('resize',()=>{const r=sc/s0;fit();setScale(s0*r)});
+let need=true;fit();setScale(s0);
+$$('.rh').forEach(h=>{let d=null;h.addEventListener('pointerdown',e=>{h.setPointerCapture(e.pointerId);d={x:e.clientX,y:e.clientY,s:sc};e.preventDefault()});
+ h.addEventListener('pointermove',e=>{if(!d)return;const k=h.dataset.h,dx=e.clientX-d.x,dy=e.clientY-d.y;
+  const ex=k.includes('e')?dx*2:k.includes('w')?-dx*2:0,ey=k.includes('s')?dy*2:k.includes('n')?-dy*2:0;
+  const rx_=ex/(W0*d.s),ry_=ey/(H0*d.s);setScale(d.s*(1+(Math.abs(rx_)>Math.abs(ry_)?rx_:ry_)))});
+ h.addEventListener('pointerup',()=>d=null);h.addEventListener('pointercancel',()=>d=null)});
+$('#zMinus').onclick=()=>setScale(sc*.9);$('#zPlus').onclick=()=>setScale(sc*1.1);$('#zPct').onclick=()=>setScale(s0);
+$$('.cheek').forEach(c=>c.addEventListener('dblclick',()=>{setScale(s0);toast('Window reset to 100%')}));
+/* ============ Audio (preview only) ============ */
+let actx=null,node=null,playing=false;
+function startAudio(){try{if(!actx){const AC=window.AudioContext||window.webkitAudioContext;actx=new AC();FS=actx.sampleRate;proc.snapNext=true;proc.update();
+   node=actx.createScriptProcessor(2048,0,2);node.onaudioprocess=e=>{const L=e.outputBuffer.getChannelData(0),Rr=e.outputBuffer.getChannelData(1);proc.render(L.length,L,Rr)}}
+  node.connect(actx.destination);if(actx.resume)actx.resume();playing=true;$('#rigPlay').innerHTML='&#9632; Stop preview';$('#rigPlay').classList.add('on')}catch(e){toast('Audio is not available here');playing=false}}
+function stopAudio(){playing=false;try{node&&node.disconnect()}catch(e){}$('#rigPlay').innerHTML='&#9654; Play preview';$('#rigPlay').classList.remove('on')}
+function togglePlay(){playing?stopAudio():startAudio()}
+$('#rigPlay').onclick=togglePlay;
+$('#rigSrc').onchange=e=>{if(e.target.value==='file'&&!fileBuf){$('#rigFileIn').click();e.target.value=proc.kind;return}proc.kind=e.target.value;$('#rigHint').textContent=proc.kind==='pink'?'Pink noise shows the curve most clearly in the spectrum.':'Bypass (B) switches between equalized and dry so you can compare.'};
+$('#rigFile').onclick=()=>$('#rigFileIn').click();
+$('#rigFileIn').onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{try{const AC=window.AudioContext||window.webkitAudioContext;if(!actx){actx=new AC();FS=actx.sampleRate;node=actx.createScriptProcessor(2048,0,2);node.onaudioprocess=ev=>{const L=ev.outputBuffer.getChannelData(0),Rr=ev.outputBuffer.getChannelData(1);proc.render(L.length,L,Rr)}}
+  actx.decodeAudioData(rd.result,buf=>{const a=buf.getChannelData(0),b=buf.numberOfChannels>1?buf.getChannelData(1):a,m=new Float32Array(a.length);for(let i=0;i<m.length;i++)m[i]=(a[i]+b[i])*.5;fileBuf=m;proc.kind='file';$('#rigSrc').value='file';toast('Loaded '+f.name.slice(0,30))},()=>toast('Could not read that file'))}catch(err){toast('Could not read that file')}};rd.readAsArrayBuffer(f)};
+$('#bBypass').onclick=()=>{st.bypass^=1;syncUI()};
+document.addEventListener('keydown',e=>{if(!modal.hidden){if(e.key==='Escape')closeModal();return}const t=e.target;if(t&&(t.tagName==='INPUT'||t.tagName==='SELECT'||t.tagName==='TEXTAREA'))return;
+ if(e.key===' '&&!(t&&t.tagName==='BUTTON')){e.preventDefault();togglePlay()}else if(e.key==='b'||e.key==='B'){st.bypass^=1;syncUI()}else if(e.key==='['){stepPreset(-1)}else if(e.key===']'){stepPreset(1)}});
+/* ============ Frame loop: pauses when the window is hidden ============ */
+let lastT=0,fcount=0;
+function frameLoop(t){requestAnimationFrame(frameLoop);if(document.hidden)return;
+ const minGap=settings.power?1000/16:0;if(t-lastT<minGap&&lastT)return;const dt=Math.min(.1,(t-lastT)/1000||1/60);lastT=t;
+ if(!playing){const n=Math.min(4096,Math.round(dt*FS));proc.render(n)}
+ fcount++;
+ const a=spectrumOf(proc.rIn,proc.rp),b=spectrumOf(proc.rOut,proc.rp);spIn=columns(a,spIn);spOut=columns(b,spOut);
+ trackPeaks();drawResp();drawSpec();drawMeters(t)}
+Object.assign(st,DEF,FACTORY[0].p);const XTIP={'#pPrev':'Steps back through the list. Try: tap it to audition factory sounds quickly.','#pNext':'Steps forward through the list. Try: tap it to audition factory sounds quickly.','#pName':'Try: click it, search for "trick", and load Low Trick 60.','#pSave':'Try: tweak a factory sound, then save your own version.','#bBypass':'Try: switch it during playback and match the loudness by ear.','#bGuide':'Try: read the low trick note first.','#bSettings':'Try: switch between the three looks.','#bAbout':'Try: open it to find the project links.','#cvResp':'Hover to read frequency, note, EQ gain and spectrum level. Try: drag the low handles to the same spot for the low trick.','#cvSpec':'Hover to read frequency, note, and level. Small labels name the strongest peaks. Try: play pink noise and watch the curve shape it.','#cvMet':'Try: keep the loudest peaks in the purple zone and out of pink.','#rigPlay':'Try: play pink noise to see the curve most clearly.','#rigSrc':'Try: switch to drums to hear the low section on a kick.','#rigFile':'Try: load one of your own tracks.','.brand':'Try: open About & Support for the project links.','#cheekL':'Try: resize the window, then double-click here.','#cheekR':'Try: resize the window, then double-click here.','#zPct':'Click to return to 100%.'};
+for(const q in XTIP){const e=$(q);if(e)e.dataset.tip=(e.dataset.tip?e.dataset.tip+' ':'')+XTIP[q]}
+const GX=['Try: use Boost and Atten here together for the low trick.','Try: start with 2 to 4 on the boost.','Try: start at 5 kHz or 10 kHz.','Try: 2 to 3 on Tube, then adjust Output.'];
+$$('.grp').forEach((g,i)=>{g.dataset.tip+=' '+GX[i]});
+syncUI();applySettings();requestAnimationFrame(frameLoop);
+window.__paw={handles,st,proc,syncUI,setScale,totalDb,coefOf,loadPreset,FACTORY,get sc(){return sc},get playing(){return playing},openBrowser,startAudio,stopAudio};
+})();
+</script>
