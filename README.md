@@ -30,9 +30,6 @@ Get the zip from the [Releases page](https://github.com/SpeakingColors/pawltec/r
 ## Build
 CMake and a C++17 compiler: `cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build`. JUCE 8.0.16 is fetched by CMake. Core tests without JUCE: `sh tests/run.sh`.
 
-## Privacy
-Collects nothing. No network access.
-
 ## Support
 <p align="center">
   <a href="https://ko-fi.com/studio87"><img src="https://img.shields.io/badge/Support_Studio_87-on_Ko--fi-FF5E5B?style=for-the-badge&logo=kofi&logoColor=white" alt="Support Studio 87 on Ko-fi"></a>
